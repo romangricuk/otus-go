@@ -43,3 +43,38 @@ func TestUnpackInvalidString(t *testing.T) {
 		})
 	}
 }
+
+func TestIsDigit(t *testing.T) {
+	for char := '0'; char <= '9'; char++ {
+		require.True(t, isDigit(char))
+	}
+
+	for char := 'a'; char <= 'z'; char++ {
+		require.False(t, isDigit(char))
+	}
+}
+
+func TestIsLetter(t *testing.T) {
+	for char := '0'; char <= '9'; char++ {
+		require.False(t, isLetter(char))
+	}
+
+	for char := 'a'; char <= 'z'; char++ {
+		require.True(t, isLetter(char))
+	}
+}
+
+func TestIsValidChar(t *testing.T) {
+	for char := '0'; char <= '9'; char++ {
+		require.True(t, isValidChar(char))
+	}
+
+	for char := 'a'; char <= 'z'; char++ {
+		require.True(t, isValidChar(char))
+	}
+
+	invalidChars := []rune{'\\', '.', ',', 'A', '\n'}
+	for _, char := range invalidChars {
+		require.False(t, isLetter(char))
+	}
+}

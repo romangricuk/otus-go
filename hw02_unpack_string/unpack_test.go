@@ -16,6 +16,11 @@ func TestUnpack(t *testing.T) {
 		{input: "abccd", expected: "abccd"},
 		{input: "", expected: ""},
 		{input: "aaa0b", expected: "aab"},
+		{input: "я9", expected: "яяяяяяяяя"},
+		{input: "สวัสดี", expected: "สวัสดี"},
+		{input: "สวัส4ดี", expected: "สวัสสสสดี"},
+		{input: "🙃0", expected: ""},
+		{input: "🙂9", expected: "🙂🙂🙂🙂🙂🙂🙂🙂🙂"},
 		// uncomment if task with asterisk completed
 		// {input: `qwe\4\5`, expected: `qwe45`},
 		// {input: `qwe\45`, expected: `qwe44444`},
@@ -51,30 +56,5 @@ func TestIsDigit(t *testing.T) {
 
 	for char := 'a'; char <= 'z'; char++ {
 		require.False(t, isDigit(char))
-	}
-}
-
-func TestIsLetter(t *testing.T) {
-	for char := '0'; char <= '9'; char++ {
-		require.False(t, isLetter(char))
-	}
-
-	for char := 'a'; char <= 'z'; char++ {
-		require.True(t, isLetter(char))
-	}
-}
-
-func TestIsValidChar(t *testing.T) {
-	for char := '0'; char <= '9'; char++ {
-		require.True(t, isValidChar(char))
-	}
-
-	for char := 'a'; char <= 'z'; char++ {
-		require.True(t, isValidChar(char))
-	}
-
-	invalidChars := []rune{'\\', '.', ',', 'A', '\n'}
-	for _, char := range invalidChars {
-		require.False(t, isLetter(char))
 	}
 }

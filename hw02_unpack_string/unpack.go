@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 var ErrInvalidString = errors.New("invalid string")
@@ -15,20 +16,16 @@ func Unpack(s string) (string, error) {
 	var letter rune
 
 	for _, char := range s {
-		if !isValidChar(char) {
-			return "", ErrInvalidString
-		}
-
-		if isLetter(char) {
-			if letter > 0 {
-				sb.WriteString(string(letter))
-			}
-			letter = char
-		} else if isDigit(char) {
+		if isDigit(char) {
 			if multiplier > 0 || letter == 0 {
 				return "", ErrInvalidString
 			}
 			multiplier = char
+		} else {
+			if letter > 0 {
+				sb.WriteString(string(letter))
+			}
+			letter = char
 		}
 
 		if multiplier > 0 && letter > 0 {
@@ -48,13 +45,5 @@ func Unpack(s string) (string, error) {
 }
 
 func isDigit(char rune) bool {
-	return char >= '0' && char <= '9'
-}
-
-func isLetter(char rune) bool {
-	return char >= 'a' && char <= 'z'
-}
-
-func isValidChar(char rune) bool {
-	return isDigit(char) || isLetter(char)
+	return unicode.IsDigit(char)
 }

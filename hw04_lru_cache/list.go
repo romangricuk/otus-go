@@ -22,79 +22,86 @@ type list struct {
 	len  int
 }
 
-func (l *list) Len() int {
-	return l.len
+func (list *list) Len() int {
+	return list.len
 }
 
-func (l *list) Front() *ListItem {
-	return l.head
+func (list *list) Front() *ListItem {
+	return list.head
 }
 
-func (l *list) Back() *ListItem {
-	return l.tail
+func (list *list) Back() *ListItem {
+	return list.tail
 }
 
-func (l *list) PushFront(v interface{}) *ListItem {
+func (list *list) PushFront(value interface{}) *ListItem {
 	item := &ListItem{
-		Value: v,
+		Value: value,
 		Next:  nil,
 		Prev:  nil,
 	}
 
-	if l.head != nil {
-		l.head.Prev = item
-		item.Next = l.head
+	if list.head != nil {
+		list.head.Prev = item
+		item.Next = list.head
 	} else {
-		l.tail = item
+		list.tail = item
 	}
 
-	l.head = item
-	l.len++
-	return l.head
+	list.head = item
+	list.len++
+	return item
 }
 
-func (l *list) PushBack(v interface{}) *ListItem {
+func (list *list) PushBack(value interface{}) *ListItem {
 	item := &ListItem{
-		Value: v,
+		Value: value,
 		Next:  nil,
 		Prev:  nil,
 	}
 
-	if l.tail != nil {
-		l.tail.Next = item
-		item.Prev = l.tail
+	if list.tail != nil {
+		list.tail.Next = item
+		item.Prev = list.tail
 	} else {
-		l.head = item
+		list.head = item
 	}
 
-	l.tail = item
-	l.len++
+	list.tail = item
+	list.len++
 
-	return l.head
+	return item
 }
 
-func (l *list) MoveToFront(i *ListItem) {
-	if l.head != i && l.len > 1 {
-		if i != l.tail {
-			i.Prev.Next, i.Next.Prev = i.Next, i.Prev
+func (list *list) MoveToFront(item *ListItem) {
+	if list.head != item && list.len > 1 {
+		if item == list.tail {
+			item.Prev.Next = nil
+			list.tail = item.Prev
 		} else {
-			i.Prev.Next = nil
+			item.Prev.Next, item.Next.Prev = item.Next, item.Prev
 		}
 
-		l.head.Prev = i
-		i.Next = l.head
-		l.head = i
+		list.head.Prev = item
+		item.Next = list.head
+		list.head = item
 	}
 }
 
-func (l *list) Remove(i *ListItem) {
-	if i.Prev != nil {
-		i.Prev.Next = i.Next
+func (list *list) Remove(item *ListItem) {
+	if item.Prev == nil {
+		list.head = item.Next
+	} else {
+		item.Prev.Next = item.Next
 	}
-	if i.Next != nil {
-		i.Next.Prev = i.Prev
+
+	if item.Next == nil {
+		list.tail = item.Prev
+	} else {
+		item.Next.Prev = item.Prev
 	}
-	l.len--
+
+	list.len--
 }
 
 func NewList() List {

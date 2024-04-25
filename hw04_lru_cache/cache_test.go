@@ -207,8 +207,11 @@ func (tS *TestSuite) TestPurge() {
 		case *lruCache:
 			firstExpectedValue := tc.Expected[0]
 			lastExpectedValue := tc.Expected[len(tc.Expected)-1]
-			tS.Equal(firstExpectedValue.val, v.queue.Front().Value)
-			tS.Equal(lastExpectedValue.val, v.queue.Back().Value)
+			tS.Equal(firstExpectedValue.val, v.queue.Front().Value.(queueItem).value)
+			tS.Equal(firstExpectedValue.key, v.queue.Front().Value.(queueItem).key)
+			tS.Equal(lastExpectedValue.val, v.queue.Back().Value.(queueItem).value)
+			tS.Equal(lastExpectedValue.key, v.queue.Back().Value.(queueItem).key)
+
 		default:
 			tS.T().Error("unexpected type")
 		}

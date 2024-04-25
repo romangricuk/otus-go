@@ -10,6 +10,11 @@ type Cache interface {
 	Clear()
 }
 
+type queueItem struct {
+	key   Key
+	value interface{}
+}
+
 type lruCache struct {
 	mu       sync.Mutex
 	capacity int
@@ -32,23 +37,22 @@ func (cache *lruCache) Set(key Key, value interface{}) bool {
 	cacheItem, isExist := cache.items[key]
 
 	if isExist {
-		cacheItem.Value = value
+		cacheItem.Value = queueItem{
+			key:   key,
+			value: value,
+		}
 		cache.queue.MoveToFront(cacheItem)
 	} else {
-		cache.items[key] = cache.queue.PushFront(value)
+		cache.items[key] = cache.queue.PushFront(queueItem{
+			key:   key,
+			value: value,
+		})
 	}
 
 	if cache.queue.Len() > cache.capacity {
 		back := cache.queue.Back()
 		cache.queue.Remove(back)
-
-		// todo переделать на O(1)
-		for cacheKey, item := range cache.items {
-			if item == back {
-				delete(cache.items, cacheKey)
-				break
-			}
-		}
+		delete(cache.items, back.Value.(queueItem).key)
 	}
 
 	return isExist
@@ -63,7 +67,7 @@ func (cache *lruCache) Get(key Key) (interface{}, bool) {
 	if isExist {
 		cache.queue.MoveToFront(cacheItem)
 
-		return cacheItem.Value, isExist
+		return cacheItem.Value.(queueItem).value, isExist
 	}
 
 	return nil, false

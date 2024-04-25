@@ -72,6 +72,6 @@ func TestList(t *testing.T) {
 
 		l.Remove(l.Front())
 		require.Equal(t, 2, l.Len())
-		require.Equal(t, 40, l.Front().Value)
+		require.Equal(t, 10, l.Front().Value)
 	})
 }

@@ -215,6 +215,19 @@ func (tS *TestSuite) TestPurge() {
 	}
 }
 
+func (tS *TestSuite) TestClear() {
+	ok := tS.Cache.Set("1", 20)
+	tS.Require().False(ok)
+
+	_, ok = tS.Cache.Get("1")
+	tS.Require().True(ok)
+
+	tS.Cache.Clear()
+
+	_, ok = tS.Cache.Get("1")
+	tS.Require().False(ok)
+}
+
 func TestCacheBySuite(t *testing.T) {
 	suite.Run(t, new(TestSuite))
 }

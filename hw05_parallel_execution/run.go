@@ -22,10 +22,11 @@ func Run(tasks []Task, n, m int) error {
 
 	for i := 0; i < n; i++ {
 		go func() {
-			taskIndex := 0
+			defer wg.Done()
+
 			for {
 				muTaskIndex.Lock()
-				taskIndex = currentTask
+				taskIndex := currentTask
 				currentTask++
 				muTaskIndex.Unlock()
 
@@ -44,8 +45,6 @@ func Run(tasks []Task, n, m int) error {
 					muErrCount.Unlock()
 				}
 			}
-
-			wg.Done()
 		}()
 	}
 

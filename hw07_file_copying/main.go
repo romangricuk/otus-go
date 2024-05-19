@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"flag"
+	"fmt"
 )
 
 var (
@@ -16,7 +18,31 @@ func init() {
 	flag.Int64Var(&offset, "offset", 0, "offset in input file")
 }
 
+func validateFlags() error {
+	if from == "" {
+		return errors.New("source file path (-from) is required")
+	}
+	if to == "" {
+		return errors.New("destination file path (-to) is required")
+	}
+	if offset < 0 {
+		return errors.New("offset cannot be negative")
+	}
+	if limit < 0 {
+		return errors.New("limit cannot be negative")
+	}
+	return nil
+}
+
 func main() {
 	flag.Parse()
-	// Place your code here.
+	// time.Sleep(20 * time.Second)
+	if err := validateFlags(); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := copyFile(from, to, offset, limit); err != nil {
+		fmt.Println(err)
+	}
 }

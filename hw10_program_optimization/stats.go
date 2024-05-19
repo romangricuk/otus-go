@@ -3,6 +3,7 @@ package hw10programoptimization
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -29,7 +30,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 
 	for {
 		var user User
-		if err := decoder.Decode(&user); err == io.EOF {
+		if err := decoder.Decode(&user); errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
 			return nil, fmt.Errorf("json decode error: %w", err)

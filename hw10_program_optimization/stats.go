@@ -2,11 +2,12 @@ package hw10programoptimization
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/ugorji/go/codec"
 )
 
 type User struct {
@@ -26,7 +27,8 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	domain = "." + strings.ToLower(domain)
 
 	bufReader := bufio.NewReader(r)
-	decoder := json.NewDecoder(bufReader)
+	handle := new(codec.JsonHandle)
+	decoder := codec.NewDecoder(bufReader, handle)
 
 	for {
 		var user User

@@ -8,14 +8,12 @@ import (
 	"time"
 )
 
-func copyFile(from, to string, offset, limit int64) (err error) {
+func copyFile(from, to string, offset, limit int64) error {
 	sourceFile, err := os.Open(from)
 	if err != nil {
 		return fmt.Errorf("on open source file: %w", err)
 	}
-	defer func(sourceFile *os.File) {
-		_ = sourceFile.Close()
-	}(sourceFile)
+	defer sourceFile.Close()
 
 	sourceInfo, err := sourceFile.Stat()
 	if err != nil {
@@ -30,77 +28,52 @@ func copyFile(from, to string, offset, limit int64) (err error) {
 		return fmt.Errorf("on seek in source file: %w", err)
 	}
 
-	var bytesToCopy int64
-
-	if limit == 0 || limit-offset > sourceInfo.Size() {
-		bytesToCopy = sourceInfo.Size() - offset
-	} else if limit > 0 {
-		bytesToCopy = limit
-	}
+	bytesToCopy := calculateBytesToCopy(sourceInfo.Size(), offset, limit)
 
 	destFile, err := os.Create(to)
 	if err != nil {
 		return fmt.Errorf("on create destination file: %w", err)
 	}
-
-	defer func(destFile *os.File) {
-		_ = destFile.Close()
-	}(destFile)
+	defer destFile.Close()
 
 	return copyWithProgress(sourceFile, destFile, bytesToCopy)
 }
 
+func calculateBytesToCopy(fileSize, offset, limit int64) int64 {
+	if limit == 0 || limit > fileSize-offset {
+		return fileSize - offset
+	}
+	return limit
+}
+
 func copyWithProgress(src io.Reader, dst io.Writer, bytesToCopy int64) error {
-	bufSize := int64(1024)
+	const bufSize = 1024
 	buf := make([]byte, bufSize)
-	var totalWrite int64
-	var totalRead int64
-	var toByte int64
+	var totalWritten int64
 
 	startTime := time.Now()
 
-	for {
-		numOfReadBytes, err := src.Read(buf)
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
+	for totalWritten < bytesToCopy {
+		bytesToRead := min(bufSize, bytesToCopy-totalWritten)
+		n, err := src.Read(buf[:bytesToRead])
+		if err != nil && !errors.Is(err, io.EOF) {
 			return fmt.Errorf("on read file: %w", err)
 		}
 
-		totalRead += int64(numOfReadBytes)
-
-		if totalWrite+int64(numOfReadBytes) > bytesToCopy {
-			if bufSize >= bytesToCopy {
-				toByte = bytesToCopy
-			} else {
-				toByte = bufSize - (totalWrite + int64(numOfReadBytes) - bytesToCopy)
-			}
-		} else {
-			toByte = int64(numOfReadBytes)
+		if n == 0 {
+			break
 		}
 
-		numOfWriteBytes, err := dst.Write(buf[0:toByte])
+		n, err = dst.Write(buf[:n])
 		if err != nil {
 			return fmt.Errorf("on write: %w", err)
 		}
 
-		totalWrite += int64(numOfWriteBytes)
-
-		if toByte != int64(numOfWriteBytes) {
-			return errors.New("read/write mismatch")
-		}
-
-		printProgress(totalWrite, bytesToCopy, startTime)
-
-		if totalWrite >= bytesToCopy {
-			break
-		}
+		totalWritten += int64(n)
+		printProgress(totalWritten, bytesToCopy, startTime)
 	}
 
-	if totalWrite > 0 {
-		fmt.Print("\r")
-	}
+	fmt.Print("\r")
 
 	return nil
 }

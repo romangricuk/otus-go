@@ -13,22 +13,29 @@ const (
 	fault         = sleepPerStage / 2
 )
 
-func TestPipeline(t *testing.T) {
-	// Stage generator
-	g := func(_ string, f func(v interface{}) interface{}) Stage {
-		return func(in In) Out {
-			out := make(Bi)
-			go func() {
-				defer close(out)
-				for v := range in {
-					time.Sleep(sleepPerStage)
-					out <- f(v)
-				}
-			}()
-			return out
-		}
+func g(_ string, f func(v interface{}) interface{}) Stage {
+	return func(in In) Out {
+		out := make(Bi)
+		go func() {
+			defer close(out)
+			for v := range in {
+				time.Sleep(sleepPerStage)
+				out <- f(v)
+			}
+		}()
+		return out
 	}
+}
 
+func collectResults(out Out) []interface{} {
+	results := make([]interface{}, 0, 4)
+	for v := range out {
+		results = append(results, v)
+	}
+	return results
+}
+
+func TestPipeline(t *testing.T) {
 	stages := []Stage{
 		g("Dummy", func(v interface{}) interface{} { return v }),
 		g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
@@ -90,4 +97,78 @@ func TestPipeline(t *testing.T) {
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
+}
+
+func TestEmptyInput(t *testing.T) {
+	stages := []Stage{
+		g("Dummy", func(v interface{}) interface{} { return v }),
+		g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
+		g("Adder (+ 100)", func(v interface{}) interface{} { return v.(int) + 100 }),
+		g("Stringifier", func(v interface{}) interface{} { return strconv.Itoa(v.(int)) }),
+	}
+
+	in := make(Bi)
+	done := make(Bi)
+	close(in) // Закрываем входной канал сразу
+
+	out := ExecutePipeline(in, done, stages...)
+	results := collectResults(out)
+
+	if len(results) != 0 {
+		t.Errorf("Expected empty results, got %v", results)
+	}
+}
+
+func TestNoStages(t *testing.T) {
+	in := make(Bi)
+	done := make(Bi)
+
+	go func() {
+		defer close(in)
+		for i := 0; i < 5; i++ {
+			in <- i
+		}
+	}()
+
+	out := ExecutePipeline(in, done)
+	results := collectResults(out)
+	expected := []interface{}{0, 1, 2, 3, 4}
+
+	if len(results) != len(expected) {
+		t.Errorf("Expected length %v, got %v", len(expected), len(results))
+	}
+
+	for i, v := range results {
+		if v != expected[i] {
+			t.Errorf("Expected value %v, got %v", expected[i], v)
+		}
+	}
+}
+
+func TestPipelineWithStrings(t *testing.T) {
+	stringStage := g("String Processor", func(v interface{}) interface{} { return v.(string) + "_processed" })
+
+	in := make(Bi)
+	done := make(Bi)
+
+	go func() {
+		defer close(in)
+		for _, s := range []string{"a", "b", "c"} {
+			in <- s
+		}
+	}()
+
+	out := ExecutePipeline(in, done, stringStage)
+	results := collectResults(out)
+	expected := []interface{}{"a_processed", "b_processed", "c_processed"}
+
+	if len(results) != len(expected) {
+		t.Errorf("Expected length %v, got %v", len(expected), len(results))
+	}
+
+	for i, v := range results {
+		if v != expected[i] {
+			t.Errorf("Expected value %v, got %v", expected[i], v)
+		}
+	}
 }

@@ -29,9 +29,9 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	bufReader := bufio.NewReader(r)
 	handle := new(codec.JsonHandle)
 	decoder := codec.NewDecoder(bufReader, handle)
+	var user User
 
 	for {
-		var user User
 		if err := decoder.Decode(&user); errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {

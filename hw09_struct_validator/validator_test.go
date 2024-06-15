@@ -163,7 +163,7 @@ func TestValidate(t *testing.T) {
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
-			//t.Parallel()
+			// t.Parallel()
 
 			err := Validate(tt.in)
 			if tt.expectedErr == nil {
@@ -234,7 +234,7 @@ func TestInvalidValidations(t *testing.T) {
 			},
 			expectedErr: InvalidValidatorError{
 				Field: "Value",
-				Err:   InvalidTagFormatError,
+				Err:   ErrInvalidTagFormat,
 			},
 		},
 	}
@@ -242,7 +242,7 @@ func TestInvalidValidations(t *testing.T) {
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
-			//t.Parallel()
+			// t.Parallel()
 
 			err := Validate(tt.in)
 			if tt.expectedErr == nil {

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var InvalidTagFormatError = fmt.Errorf("invalid validation tag format")
+var ErrInvalidTagFormat = fmt.Errorf("invalid validation tag format")
 
 // ValidationError represents a validation error for a specific field.
 type ValidationError struct {
@@ -36,7 +36,7 @@ func (e InvalidValidatorError) Error() string {
 type ValidationErrors []ValidationError
 
 func (ve ValidationErrors) Error() string {
-	var errs []string
+	errs := make([]string, 0, len(ve))
 	for _, err := range ve {
 		errs = append(errs, err.Error())
 	}
@@ -65,7 +65,7 @@ func Validate(v interface{}) error {
 
 		if fieldType.Type.Kind() == reflect.Struct && validateTag == "nested" {
 			if err := Validate(field.Addr().Interface()); err != nil {
-				if ve, ok := err.(ValidationErrors); ok {
+				if ve, ok := err.(ValidationErrors); ok { //nolint:errorlint
 					for i, e := range ve {
 						ve[i].Field = fieldType.Name + "." + e.Field
 					}
@@ -86,14 +86,14 @@ func Validate(v interface{}) error {
 			if len(validationParts) != 2 {
 				return InvalidValidatorError{
 					Field: fieldType.Name,
-					Err:   InvalidTagFormatError,
+					Err:   ErrInvalidTagFormat,
 				}
 			}
 			validator := validationParts[0]
 			param := validationParts[1]
 
 			if err := validateField(field, validator, param); err != nil {
-				if ve, ok := err.(*ValidationError); ok {
+				if ve, ok := err.(*ValidationError); ok { //nolint:errorlint
 					ve.Field = fieldType.Name
 					validationErrors = append(validationErrors, *ve)
 				} else {
@@ -114,7 +114,7 @@ func Validate(v interface{}) error {
 }
 
 func validateField(field reflect.Value, validator string, param string) error {
-	switch field.Kind() {
+	switch field.Kind() { //nolint:errorlint
 	case reflect.String:
 		return validateString(field.String(), validator, param)
 	case reflect.Int:

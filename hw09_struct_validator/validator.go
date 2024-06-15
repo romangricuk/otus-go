@@ -44,6 +44,8 @@ func (ve ValidationErrors) Error() string {
 }
 
 // Validate validates the fields of a struct based on the "validate" tag.
+//
+//nolint:gocognit
 func Validate(v interface{}) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Struct {
@@ -114,7 +116,7 @@ func Validate(v interface{}) error {
 }
 
 func validateField(field reflect.Value, validator string, param string) error {
-	switch field.Kind() { //nolint:errorlint
+	switch field.Kind() { //nolint:exhaustive
 	case reflect.String:
 		return validateString(field.String(), validator, param)
 	case reflect.Int:

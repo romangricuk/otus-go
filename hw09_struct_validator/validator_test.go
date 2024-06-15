@@ -232,3 +232,82 @@ func TestValidate(t *testing.T) {
 		})
 	}
 }
+
+func TestInvalidValidations(t *testing.T) {
+	tests := []struct {
+		in          interface{}
+		expectedErr error
+	}{
+		{
+			in: &ValidatorInvalidMin{
+				Value: 123,
+			},
+			expectedErr: InvalidValidatorError{
+				Field: "Value",
+				Err: &strconv.NumError{
+					Func: "Atoi",
+					Num:  "aaa",
+					Err:  strconv.ErrSyntax,
+				},
+			},
+		},
+		{
+			in: &ValidatorInvalidMax{
+				Value: 123,
+			},
+			expectedErr: InvalidValidatorError{
+				Field: "Value",
+				Err: &strconv.NumError{
+					Func: "Atoi",
+					Num:  "aaa",
+					Err:  strconv.ErrSyntax,
+				},
+			},
+		},
+		{
+			in: &ValidatorInvalidLen{
+				Value: "123",
+			},
+			expectedErr: InvalidValidatorError{
+				Field: "Value",
+				Err: &strconv.NumError{
+					Func: "Atoi",
+					Num:  "aaa",
+					Err:  strconv.ErrSyntax,
+				},
+			},
+		},
+		{
+			in: &UnknownValidator{
+				Value: "123",
+			},
+			expectedErr: InvalidValidatorError{
+				Field: "Value",
+				Err:   fmt.Errorf("unknown validator aaa"),
+			},
+		},
+		{
+			in: &ValidatorInvalidTagFormat{
+				Value: 123,
+			},
+			expectedErr: InvalidValidatorError{
+				Field: "Value",
+				Err:   InvalidTagFormatError,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+			tt := tt
+			//t.Parallel()
+
+			err := Validate(tt.in)
+			if tt.expectedErr == nil {
+				require.NoError(t, err)
+			} else {
+				assert.Equal(t, tt.expectedErr, err)
+			}
+		})
+	}
+}

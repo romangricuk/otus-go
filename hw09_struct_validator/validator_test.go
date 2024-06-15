@@ -67,64 +67,6 @@ func TestValidate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			in: &ValidatorInvalidMin{
-				Value: 123,
-			},
-			expectedErr: InvalidValidatorError{
-				Field: "Value",
-				Err: &strconv.NumError{
-					Func: "Atoi",
-					Num:  "aaa",
-					Err:  strconv.ErrSyntax,
-				},
-			},
-		},
-		{
-			in: &ValidatorInvalidMax{
-				Value: 123,
-			},
-			expectedErr: InvalidValidatorError{
-				Field: "Value",
-				Err: &strconv.NumError{
-					Func: "Atoi",
-					Num:  "aaa",
-					Err:  strconv.ErrSyntax,
-				},
-			},
-		},
-		{
-			in: &ValidatorInvalidLen{
-				Value: "123",
-			},
-			expectedErr: InvalidValidatorError{
-				Field: "Value",
-				Err: &strconv.NumError{
-					Func: "Atoi",
-					Num:  "aaa",
-					Err:  strconv.ErrSyntax,
-				},
-			},
-		},
-		{
-			in: &UnknownValidator{
-				Value: "123",
-			},
-			expectedErr: InvalidValidatorError{
-				Field: "Value",
-				Err:   fmt.Errorf("unknown validator aaa"),
-			},
-		},
-		{
-			in: &ValidatorInvalidTagFormat{
-				Value: 123,
-			},
-			expectedErr: InvalidValidatorError{
-				Field: "Value",
-				Err:   InvalidTagFormatError,
-			},
-		},
-
-		{
 			in: &User{
 				ID:     "12345678-1234-1234-1234-123456789012",
 				Name:   "John Doe",

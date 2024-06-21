@@ -30,6 +30,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	handle := new(codec.JsonHandle)
 	decoder := codec.NewDecoder(bufReader, handle)
 	var user User
+	var email string
 
 	for {
 		if err := decoder.Decode(&user); errors.Is(err, io.EOF) {
@@ -38,7 +39,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 			return nil, fmt.Errorf("json decode error: %w", err)
 		}
 
-		email := strings.ToLower(user.Email)
+		email = strings.ToLower(user.Email)
 		if strings.HasSuffix(email, domain) {
 			atIndex := strings.LastIndex(email, "@")
 			if atIndex != -1 {
@@ -46,6 +47,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 				domainStat[domainPart]++
 			}
 		}
+		user = User{}
 	}
 
 	return domainStat, nil

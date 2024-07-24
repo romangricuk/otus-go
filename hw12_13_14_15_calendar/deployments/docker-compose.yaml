@@ -1,1 +1,50 @@
-version: "3"
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: calendar_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: "pg_isready --username=${DB_USER} --dbname=${DB_NAME}"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+    container_name: calendar_app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../configs:/etc/calendar/configs
+      - ../migrations:/migrations
+    #    entrypoint: [ "./opt/calendar/calendar-app", "-config", "/etc/calendar/configs/config.toml", "--command=migrate_up", "--migrations=/migrations" ]
+    command: [ "./opt/calendar/calendar-app", "-config", "/etc/calendar/configs/config.toml" ]
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  db-data:

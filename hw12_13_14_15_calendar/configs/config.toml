@@ -1,5 +1,11 @@
-[logger]
-level = "INFO"
+[server]
+address = "0.0.0.0:8080"
 
-# TODO
-# ...
+[database]
+storage = "sql"
+
+[logger]
+level = "debug"
+encoding = "json"
+outputPaths = ["stdout"]
+errorOutputPaths = ["stderr"]

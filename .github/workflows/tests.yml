@@ -72,6 +72,13 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
+      - name: Set up Go environment
+        run: |
+          echo "Setting up Go environment"
+          export GOROOT=$(go env GOROOT)
+          export GOPATH=$(go env GOPATH)
+          export GOCACHE=$(go env GOCACHE)
+
       - name: make lint
         run: make lint
         working-directory: hw12_13_14_15_calendar

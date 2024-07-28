@@ -10,6 +10,16 @@ build:
 run: build
 	$(BIN) -config ./configs/config.toml
 
+#Генерация UML диаграммы проекта
+#предварительно требуется установка goplantuml
+#go install github.com/jfeliu007/goplantuml/cmd/goplantuml@latest
+generate-uml-diagram:
+	 goplantuml -recursive  -show-connection-labels ./ > docs/diagram.puml
+
+#генерация swagger документации
+swagger:
+	swag init -g ./internal/server/http/server.go -o ./docs
+
 build-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
@@ -23,12 +33,12 @@ version: build
 	$(BIN) version
 
 test:
-	go test -race ./internal/... ./pkg/...
+	go test -race ./internal/...
 
 install-lint-deps:
-	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.50.1
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.57.2
 
 lint: install-lint-deps
-	golangci-lint run ./...
+	GOROOT=$(shell go env GOROOT) golangci-lint run ./...
 
 .PHONY: build run build-img run-img version test lint

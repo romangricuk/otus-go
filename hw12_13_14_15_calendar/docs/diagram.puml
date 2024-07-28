@@ -1,0 +1,298 @@
+@startuml
+namespace app {
+    class App << (S,Aquamarine) >> {
+        - config *config.Config
+        - logger logger.Logger
+        - server *http.Server
+        - storage storage.Storage
+        - eventService services.EventService
+        - notificationService services.NotificationService
+        - healthService services.HealthService
+
+        + Start(ctx context.Context) error
+        + Stop(ctx context.Context) error
+
+    }
+    interface Application  {
+        + Start(ctx context.Context) error
+        + Stop(ctx context.Context) error
+
+    }
+}
+
+"app.Application" <|-- "implements""app.App"
+
+namespace config {
+    class Config << (S,Aquamarine) >> {
+        + Server ServerConfig
+        + Database DatabaseConfig
+        + Logger LoggerConfig
+
+    }
+    class DatabaseConfig << (S,Aquamarine) >> {
+        + User string
+        + Password string
+        + Name string
+        + Host string
+        + Port int
+        + Storage string
+
+    }
+    class LoggerConfig << (S,Aquamarine) >> {
+        + Level string
+        + Encoding string
+        + OutputPaths []string
+        + ErrorOutputPaths []string
+
+    }
+    class ServerConfig << (S,Aquamarine) >> {
+        + Address string
+
+    }
+}
+
+
+namespace internalhttp {
+    class Response << (S,Aquamarine) >> {
+        + Data <font color=blue>interface</font>{}
+        + Errors []string
+        + Status int
+        + RequestID string
+
+    }
+    class Server << (S,Aquamarine) >> {
+        - httpServer *http.Server
+        - eventService services.EventService
+        - notificationService services.NotificationService
+        - healthService services.HealthService
+        - logger logger.Logger
+
+        - healthCheckHandler(w http.ResponseWriter, r *http.Request) 
+        - createEventHandler(w http.ResponseWriter, r *http.Request) 
+        - updateEventHandler(w http.ResponseWriter, r *http.Request) 
+        - deleteEventHandler(w http.ResponseWriter, r *http.Request) 
+        - getEventHandler(w http.ResponseWriter, r *http.Request) 
+        - listEventsHandler(w http.ResponseWriter, r *http.Request) 
+        - writeJSONResponse(w http.ResponseWriter, r *http.Request, response Response) 
+
+        + Start(ctx context.Context) error
+        + Stop(ctx context.Context) error
+
+    }
+    class eventRequest << (S,Aquamarine) >> {
+        + Title string
+        + Description string
+        + StartTime time.Time
+        + EndTime time.Time
+        + UserID uuid.UUID
+
+    }
+    class responseWriter << (S,Aquamarine) >> {
+        - statusCode int
+        - size int
+
+        + WriteHeader(code int) 
+        + Write(b []byte) (int, error)
+
+    }
+}
+"http.ResponseWriter" *-- "extends""internalhttp.responseWriter"
+
+"app.Application" <|-- "implements""internalhttp.Server"
+
+namespace logger {
+    interface Logger  {
+        + Info(args ...<font color=blue>interface</font>{}) 
+        + Infof(template string, args ...<font color=blue>interface</font>{}) 
+        + Error(args ...<font color=blue>interface</font>{}) 
+        + Errorf(template string, args ...<font color=blue>interface</font>{}) 
+        + Fatal(args ...<font color=blue>interface</font>{}) 
+        + Fatalf(template string, args ...<font color=blue>interface</font>{}) 
+
+    }
+    class ZapLogger << (S,Aquamarine) >> {
+    }
+}
+"zap.SugaredLogger" *-- "extends""logger.ZapLogger"
+
+
+namespace memorystorage {
+    class EventRepo << (S,Aquamarine) >> {
+        - storage *MemoryStorage
+        - mu sync.RWMutex
+
+        + CreateEvent(ctx context.Context, event storage.Event) (uuid.UUID, error)
+        + UpdateEvent(ctx context.Context, id uuid.UUID, event storage.Event) error
+        + DeleteEvent(ctx context.Context, id uuid.UUID) error
+        + GetEvent(ctx context.Context, id uuid.UUID) (storage.Event, error)
+        + ListEvents(ctx context.Context, start time.Time, end time.Time) ([]storage.Event, error)
+
+    }
+    class MemoryStorage << (S,Aquamarine) >> {
+        - events <font color=blue>map</font>[uuid.UUID]storage.Event
+        - notifications <font color=blue>map</font>[uuid.UUID]storage.Notification
+
+        + Connect(ctx context.Context) error
+        + Close() error
+        + EventRepository() storage.EventRepository
+        + NotificationRepository() storage.NotificationRepository
+        + HealthCheck( context.Context) error
+
+    }
+    class NotificationRepo << (S,Aquamarine) >> {
+        - storage *MemoryStorage
+        - mu sync.RWMutex
+
+        + CreateNotification(ctx context.Context, notification storage.Notification) (uuid.UUID, error)
+        + UpdateNotification(ctx context.Context, id uuid.UUID, notification storage.Notification) error
+        + DeleteNotification(ctx context.Context, id uuid.UUID) error
+        + GetNotification(ctx context.Context, id uuid.UUID) (storage.Notification, error)
+        + ListNotifications(ctx context.Context, start time.Time, end time.Time) ([]storage.Notification, error)
+
+    }
+}
+
+"storage.EventRepository" <|-- "implements""memorystorage.EventRepo"
+"services.HealthService" <|-- "implements""memorystorage.MemoryStorage"
+"storage.Storage" <|-- "implements""memorystorage.MemoryStorage"
+"storage.NotificationRepository" <|-- "implements""memorystorage.NotificationRepo"
+
+namespace services {
+    interface EventService  {
+        + CreateEvent(ctx context.Context, title string, description string, startTime time.Time, endTime time.Time, userID uuid.UUID) (uuid.UUID, error)
+        + UpdateEvent(ctx context.Context, id uuid.UUID, title string, description string, startTime time.Time, endTime time.Time, userID uuid.UUID) error
+        + DeleteEvent(ctx context.Context, id uuid.UUID) error
+        + GetEvent(ctx context.Context, id uuid.UUID) (storage.Event, error)
+        + ListEvents(ctx context.Context, start time.Time, end time.Time) ([]storage.Event, error)
+
+    }
+    class EventServiceImpl << (S,Aquamarine) >> {
+        - repo storage.EventRepository
+
+        + CreateEvent(ctx context.Context, title string, description string, startTime time.Time, endTime time.Time, userID uuid.UUID) (uuid.UUID, error)
+        + UpdateEvent(ctx context.Context, id uuid.UUID, title string, description string, startTime time.Time, endTime time.Time, userID uuid.UUID) error
+        + DeleteEvent(ctx context.Context, id uuid.UUID) error
+        + GetEvent(ctx context.Context, id uuid.UUID) (storage.Event, error)
+        + ListEvents(ctx context.Context, start time.Time, end time.Time) ([]storage.Event, error)
+
+    }
+    interface HealthService  {
+        + HealthCheck(ctx context.Context) error
+
+    }
+    class HealthServiceImpl << (S,Aquamarine) >> {
+        - storage storage.Storage
+
+        + HealthCheck(ctx context.Context) error
+
+    }
+    interface NotificationService  {
+        + CreateNotification(ctx context.Context, eventID uuid.UUID, time time.Time, message string) (uuid.UUID, error)
+        + UpdateNotification(ctx context.Context, id uuid.UUID, eventID uuid.UUID, time time.Time, message string, sent bool) error
+        + DeleteNotification(ctx context.Context, id uuid.UUID) error
+        + GetNotification(ctx context.Context, id uuid.UUID) (storage.Notification, error)
+        + ListNotifications(ctx context.Context, start time.Time, end time.Time) ([]storage.Notification, error)
+
+    }
+    class NotificationServiceImpl << (S,Aquamarine) >> {
+        - storage storage.NotificationRepository
+
+        + CreateNotification(ctx context.Context, eventID uuid.UUID, time time.Time, message string) (uuid.UUID, error)
+        + UpdateNotification(ctx context.Context, id uuid.UUID, eventID uuid.UUID, time time.Time, message string, sent bool) error
+        + DeleteNotification(ctx context.Context, id uuid.UUID) error
+        + GetNotification(ctx context.Context, id uuid.UUID) (storage.Notification, error)
+        + ListNotifications(ctx context.Context, start time.Time, end time.Time) ([]storage.Notification, error)
+
+    }
+}
+
+"services.EventService" <|-- "implements""services.EventServiceImpl"
+"services.HealthService" <|-- "implements""services.HealthServiceImpl"
+"services.NotificationService" <|-- "implements""services.NotificationServiceImpl"
+
+namespace sqlstorage {
+    class EventRepo << (S,Aquamarine) >> {
+        - db *sql.DB
+
+        + CreateEvent(ctx context.Context, event storage.Event) (uuid.UUID, error)
+        + UpdateEvent(ctx context.Context, id uuid.UUID, event storage.Event) error
+        + DeleteEvent(ctx context.Context, id uuid.UUID) error
+        + GetEvent(ctx context.Context, id uuid.UUID) (storage.Event, error)
+        + ListEvents(ctx context.Context, start time.Time, end time.Time) ([]storage.Event, error)
+
+    }
+    class NotificationRepo << (S,Aquamarine) >> {
+        - db *sql.DB
+
+        + CreateNotification(ctx context.Context, notification storage.Notification) (uuid.UUID, error)
+        + UpdateNotification(ctx context.Context, id uuid.UUID, notification storage.Notification) error
+        + DeleteNotification(ctx context.Context, id uuid.UUID) error
+        + GetNotification(ctx context.Context, id uuid.UUID) (storage.Notification, error)
+        + ListNotifications(ctx context.Context, start time.Time, end time.Time) ([]storage.Notification, error)
+
+    }
+    class SqlStorage << (S,Aquamarine) >> {
+        - db *sql.DB
+        - eventRepo *EventRepo
+        - notificationRepo *NotificationRepo
+
+        + Connect(ctx context.Context) error
+        + Close() error
+        + EventRepository() storage.EventRepository
+        + NotificationRepository() storage.NotificationRepository
+        + HealthCheck(ctx context.Context) error
+
+    }
+}
+
+"storage.EventRepository" <|-- "implements""sqlstorage.EventRepo"
+"storage.NotificationRepository" <|-- "implements""sqlstorage.NotificationRepo"
+"services.HealthService" <|-- "implements""sqlstorage.SqlStorage"
+"storage.Storage" <|-- "implements""sqlstorage.SqlStorage"
+
+namespace storage {
+    class Event << (S,Aquamarine) >> {
+        + ID uuid.UUID
+        + Title string
+        + Description string
+        + StartTime time.Time
+        + EndTime time.Time
+        + UserID uuid.UUID
+
+    }
+    interface EventRepository  {
+        + CreateEvent(ctx context.Context, event Event) (uuid.UUID, error)
+        + UpdateEvent(ctx context.Context, id uuid.UUID, event Event) error
+        + DeleteEvent(ctx context.Context, id uuid.UUID) error
+        + GetEvent(ctx context.Context, id uuid.UUID) (Event, error)
+        + ListEvents(ctx context.Context, start time.Time, end time.Time) ([]Event, error)
+
+    }
+    class Notification << (S,Aquamarine) >> {
+        + ID uuid.UUID
+        + EventID uuid.UUID
+        + Time time.Time
+        + Message string
+        + Sent bool
+
+    }
+    interface NotificationRepository  {
+        + CreateNotification(ctx context.Context, notification Notification) (uuid.UUID, error)
+        + UpdateNotification(ctx context.Context, id uuid.UUID, notification Notification) error
+        + DeleteNotification(ctx context.Context, id uuid.UUID) error
+        + GetNotification(ctx context.Context, id uuid.UUID) (Notification, error)
+        + ListNotifications(ctx context.Context, start time.Time, end time.Time) ([]Notification, error)
+
+    }
+    interface Storage  {
+        + Connect(ctx context.Context) error
+        + Close() error
+        + HealthCheck(ctx context.Context) error
+        + EventRepository() EventRepository
+        + NotificationRepository() NotificationRepository
+
+    }
+}
+
+
+@enduml

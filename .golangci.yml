@@ -25,6 +25,7 @@ linters-settings:
           - github.com/gorilla/mux
           - github.com/swaggo/http-swagger
           - github.com/lib/pq
+          - github.com/ugorji/go/codec
       Test:
         files:
           - $test

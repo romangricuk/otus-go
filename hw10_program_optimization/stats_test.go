@@ -1,3 +1,4 @@
+//go:build !bench
 // +build !bench
 
 package hw10programoptimization
@@ -35,5 +36,31 @@ func TestGetDomainStat(t *testing.T) {
 		result, err := GetDomainStat(bytes.NewBufferString(data), "unknown")
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
+	})
+
+	t.Run("empty data", func(t *testing.T) {
+		result, err := GetDomainStat(bytes.NewBufferString(""), "com")
+		require.NoError(t, err)
+		require.Equal(t, DomainStat{}, result)
+	})
+
+	t.Run("invalid json", func(t *testing.T) {
+		invalidData := `{"Id":1"Name":"Howard Mendoza","Username":"0Oliver","Email":`
+		_, err := GetDomainStat(bytes.NewBufferString(invalidData), "com")
+		require.Error(t, err)
+	})
+
+	t.Run("emails without domain part", func(t *testing.T) {
+		noDomainData := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"nodomain@","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}`
+		result, err := GetDomainStat(bytes.NewBufferString(noDomainData), "com")
+		require.NoError(t, err)
+		require.Equal(t, DomainStat{}, result)
+	})
+
+	t.Run("mixed case domain names", func(t *testing.T) {
+		mixedCaseData := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"User@ExAMPle.Com","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}`
+		result, err := GetDomainStat(bytes.NewBufferString(mixedCaseData), "com")
+		require.NoError(t, err)
+		require.Equal(t, DomainStat{"example.com": 1}, result)
 	})
 }

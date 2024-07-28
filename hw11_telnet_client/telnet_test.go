@@ -63,3 +63,29 @@ func TestTelnetClient(t *testing.T) {
 		wg.Wait()
 	})
 }
+
+func TestTelnetClientConnectionTimeout(t *testing.T) {
+	host := "192.0.2.0" // Invalid IP for testing connection timeout
+	port := "4242"
+	timeout := 1 * time.Second
+
+	in := &bytes.Buffer{}
+	out := &bytes.Buffer{}
+	client := NewTelnetClient(net.JoinHostPort(host, port), timeout, io.NopCloser(in), out)
+
+	err := client.Connect()
+	require.Error(t, err, "Expected connection timeout error, got nil")
+}
+
+func TestTelnetClientInvalidHost(t *testing.T) {
+	host := "invalidhost"
+	port := "4242"
+	timeout := 5 * time.Second
+
+	in := &bytes.Buffer{}
+	out := &bytes.Buffer{}
+	client := NewTelnetClient(net.JoinHostPort(host, port), timeout, io.NopCloser(in), out)
+
+	err := client.Connect()
+	require.Error(t, err, "Expected DNS resolution error, got nil")
+}

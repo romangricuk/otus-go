@@ -21,13 +21,10 @@ func (r *NotificationRepo) CreateNotification(
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if notification.Time.Before(time.Now()) {
-		return uuid.Nil, storage.ErrNotificationTimePast
-	}
-
-	notification.ID = uuid.New()
-	r.storage.notifications[notification.ID] = notification
-	return notification.ID, nil
+	id := uuid.New()
+	notification.ID = id
+	r.storage.notifications[id] = notification
+	return id, nil
 }
 
 func (r *NotificationRepo) UpdateNotification(
@@ -42,10 +39,7 @@ func (r *NotificationRepo) UpdateNotification(
 		return storage.ErrNotificationNotFound
 	}
 
-	if notification.Time.Before(time.Now()) {
-		return storage.ErrNotificationTimePast
-	}
-
+	notification.ID = id
 	r.storage.notifications[id] = notification
 	return nil
 }

@@ -67,7 +67,7 @@ func (r *EventRepo) GetEvent(ctx context.Context, id uuid.UUID) (storage.Event, 
 
 func (r *EventRepo) ListEvents(ctx context.Context, start, end time.Time) ([]storage.Event, error) {
 	query := `SELECT id, title, description, start_time, end_time, user_id 
-				FROM events WHERE start_time >= $1 AND end_time <= $2`
+				FROM events WHERE start_time >= $1 AND end_time < $2`
 	rows, err := r.db.QueryContext(ctx, query, start, end)
 	if err != nil {
 		return nil, err

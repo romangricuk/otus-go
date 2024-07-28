@@ -23,16 +23,23 @@ func (r *NotificationRepo) CreateNotification(
 	ctx context.Context,
 	notification storage.Notification,
 ) (uuid.UUID, error) {
+	id := uuid.New()
 	query := `INSERT INTO notifications (id, event_id, time, message, sent) 
               VALUES ($1, $2, $3, $4, $5)`
 	_, err := r.db.ExecContext(
-		ctx, query,
-		notification.ID,
+		ctx,
+		query,
+		id,
 		notification.EventID,
+		notification.UserID,
 		notification.Time,
-		notification.Message, notification.Sent,
+		notification.Message,
+		notification.Sent,
 	)
-	return notification.ID, err
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return id, nil
 }
 
 func (r *NotificationRepo) UpdateNotification(
@@ -40,15 +47,16 @@ func (r *NotificationRepo) UpdateNotification(
 	id uuid.UUID,
 	notification storage.Notification,
 ) error {
-	query := `UPDATE notifications SET event_id=$1, time=$2, message=$3, sent=$4 WHERE id=$5`
+	query := `UPDATE notifications SET event_id = $2, user_id = $3, time = $4, message = $5, sent = $6 WHERE id = $1`
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
+		id,
 		notification.EventID,
+		notification.UserID,
 		notification.Time,
 		notification.Message,
 		notification.Sent,
-		id,
 	)
 	return err
 }
@@ -67,6 +75,7 @@ func (r *NotificationRepo) GetNotification(ctx context.Context, id uuid.UUID) (s
 	err := row.Scan(
 		&notification.ID,
 		&notification.EventID,
+		&notification.UserID,
 		&notification.Time,
 		&notification.Message,
 		&notification.Sent,
@@ -82,7 +91,7 @@ func (r *NotificationRepo) ListNotifications(
 	start time.Time,
 	end time.Time,
 ) ([]storage.Notification, error) {
-	query := `SELECT id, event_id, time, message, sent FROM notifications WHERE time >= $1 AND time <= $2`
+	query := `SELECT id, event_id, user_id, time, message, sent FROM notifications WHERE time >= $1 AND time <= $2`
 	rows, err := r.db.QueryContext(ctx, query, start, end)
 	if err != nil {
 		return nil, fmt.Errorf("on list notifications: %w", err)
@@ -95,6 +104,7 @@ func (r *NotificationRepo) ListNotifications(
 		err = rows.Scan(
 			&notification.ID,
 			&notification.EventID,
+			&notification.UserID,
 			&notification.Time,
 			&notification.Message,
 			&notification.Sent,

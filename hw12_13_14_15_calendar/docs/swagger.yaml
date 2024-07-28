@@ -7,7 +7,7 @@ definitions:
         items:
           type: string
         type: array
-      request_id:
+      requestId:
         type: string
       status:
         type: integer
@@ -16,11 +16,22 @@ definitions:
     properties:
       description:
         type: string
-      end_time:
+      endTime:
         type: string
-      start_time:
+      startTime:
         type: string
       title:
+        type: string
+      userId:
+        type: string
+    type: object
+  internalhttp.notificationRequest:
+    properties:
+      event_id:
+        type: string
+      message:
+        type: string
+      time:
         type: string
       user_id:
         type: string
@@ -40,12 +51,12 @@ paths:
       parameters:
       - description: Время начала
         in: query
-        name: start_time
+        name: startTime
         required: true
         type: string
       - description: Время окончания
         in: query
-        name: end_time
+        name: endTime
         required: true
         type: string
       produces:
@@ -186,6 +197,99 @@ paths:
       summary: Обновить событие
       tags:
       - events
+  /events/day:
+    get:
+      consumes:
+      - application/json
+      description: Получает список событий на указанный день
+      parameters:
+      - description: Дата начала
+        example: "2024-07-24"
+        format: date
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+      summary: Список событий на указанный день
+      tags:
+      - events
+  /events/month:
+    get:
+      consumes:
+      - application/json
+      description: Получает список событий на указанный месяц
+      parameters:
+      - description: Дата начала месяца
+        example: "2024-07-01"
+        format: date
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+      summary: Список событий на указанный месяц
+      tags:
+      - events
+  /events/week:
+    get:
+      consumes:
+      - application/json
+      description: Получает список событий на указанную неделю
+      parameters:
+      - description: Дата начала недели
+        example: "2024-07-22"
+        format: date
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+      summary: Список событий на указанную неделю
+      tags:
+      - events
   /health:
     get:
       consumes:
@@ -209,4 +313,158 @@ paths:
       summary: Проверка состояния здоровья
       tags:
       - health
+  /notifications:
+    get:
+      consumes:
+      - application/json
+      description: Получает список уведомлений между указанными датами
+      parameters:
+      - description: Время начала
+        in: query
+        name: start_time
+        required: true
+        type: string
+      - description: Время окончания
+        in: query
+        name: end_time
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+      summary: Список уведомлений
+      tags:
+      - notifications
+    post:
+      consumes:
+      - application/json
+      description: Создает новое уведомление
+      parameters:
+      - description: Запрос на создание уведомления
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/internalhttp.notificationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+      summary: Создать уведомление
+      tags:
+      - notifications
+  /notifications/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет существующее уведомление
+      parameters:
+      - description: ID уведомления
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+      summary: Удалить уведомление
+      tags:
+      - notifications
+    get:
+      consumes:
+      - application/json
+      description: Получает уведомление по ID
+      parameters:
+      - description: ID уведомления
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+      summary: Получить уведомление
+      tags:
+      - notifications
+    put:
+      consumes:
+      - application/json
+      description: Обновляет существующее уведомление
+      parameters:
+      - description: ID уведомления
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Запрос на обновление уведомления
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/internalhttp.notificationRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+      summary: Обновить уведомление
+      tags:
+      - notifications
 swagger: "2.0"

@@ -23,9 +23,46 @@ services:
       context: ..
       dockerfile: build/Dockerfile
     container_name: calendar_app
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    volumes:
+      - ../configs:/etc/calendar/configs
+      - ../migrations:/migrations
+
+  migrate:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+    container_name: migrate
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    volumes:
+      - ../configs:/etc/calendar/configs
+      - ../migrations:/migrations
+    entrypoint: [ "./opt/calendar/calendar-app", "-config", "/etc/calendar/configs/config.toml", "--command=migrate_up", "--migrations=/migrations" ]
+    command: [ "echo", "Migrations Complete" ]
+
+  app_run:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+    container_name: calendar_app_run
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -37,7 +74,6 @@ services:
     volumes:
       - ../configs:/etc/calendar/configs
       - ../migrations:/migrations
-    #    entrypoint: [ "./opt/calendar/calendar-app", "-config", "/etc/calendar/configs/config.toml", "--command=migrate_up", "--migrations=/migrations" ]
     command: [ "./opt/calendar/calendar-app", "-config", "/etc/calendar/configs/config.toml" ]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]

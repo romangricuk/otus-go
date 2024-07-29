@@ -447,7 +447,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.NotificationListResponseWrapper"
                         }
                     },
                     "400": {
@@ -483,7 +483,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.notificationRequest"
+                            "$ref": "#/definitions/dto.NotificationData"
                         }
                     }
                 ],
@@ -535,7 +535,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.NotificationResponseWrapper"
                         }
                     },
                     "400": {
@@ -578,7 +578,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.notificationRequest"
+                            "$ref": "#/definitions/dto.NotificationData"
                         }
                     }
                 ],
@@ -668,6 +668,29 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.NotificationData": {
+            "type": "object",
+            "properties": {
+                "eventID": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "sent": {
+                    "type": "boolean"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
         "internalhttp.ErrorResponseWrapper": {
             "type": "object",
             "properties": {
@@ -728,6 +751,49 @@ const docTemplate = `{
                 }
             }
         },
+        "internalhttp.NotificationListResponseWrapper": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NotificationData"
+                    }
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internalhttp.NotificationResponseWrapper": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.NotificationData"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
         "internalhttp.Response": {
             "type": "object",
             "properties": {
@@ -743,23 +809,6 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "integer"
-                }
-            }
-        },
-        "internalhttp.notificationRequest": {
-            "type": "object",
-            "properties": {
-                "event_id": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
                 }
             }
         }

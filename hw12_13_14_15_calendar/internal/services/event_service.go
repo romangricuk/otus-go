@@ -27,6 +27,7 @@ func NewEventService(repo storage.EventRepository) EventService {
 
 func (s *EventServiceImpl) CreateEvent(ctx context.Context, event dto.EventData) (uuid.UUID, error) {
 	storageEvent := dto.ToStorageEvent(event)
+	storageEvent.ID = uuid.New()
 	return s.repo.CreateEvent(ctx, storageEvent)
 }
 

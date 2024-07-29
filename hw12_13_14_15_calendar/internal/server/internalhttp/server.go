@@ -54,7 +54,7 @@ func New(
 		healthService:       healthService,
 	}
 
-	// Добавляем маршруты и обработчики
+	// Роутинг для событий (events)
 	router.HandleFunc("/events/day", server.listEventsForDateHandler).Methods("GET")
 	router.HandleFunc("/events/week", server.listEventsForWeekHandler).Methods("GET")
 	router.HandleFunc("/events/month", server.listEventsForMonthHandler).Methods("GET")
@@ -64,6 +64,14 @@ func New(
 	router.HandleFunc("/events", server.createEventHandler).Methods("POST")
 	router.HandleFunc("/events", server.listEventsHandler).Methods("GET")
 
+	// Роутинг для уведомлений (notifications)
+	router.HandleFunc("/notifications", server.createNotificationHandler).Methods("POST")
+	router.HandleFunc("/notifications/{id}", server.updateNotificationHandler).Methods("PUT")
+	router.HandleFunc("/notifications/{id}", server.deleteNotificationHandler).Methods("DELETE")
+	router.HandleFunc("/notifications/{id}", server.getNotificationHandler).Methods("GET")
+	router.HandleFunc("/notifications", server.listNotificationsHandler).Methods("GET")
+
+	// Роутинг для healthcheck
 	router.HandleFunc("/health", server.healthCheckHandler).Methods("GET")
 
 	// Маршрут для Swagger
@@ -117,6 +125,22 @@ type EventResponseWrapper struct {
 	Errors    []string      `json:"errors,omitempty"`
 	Status    int           `json:"status"`
 	RequestID string        `json:"requestId"`
+}
+
+// NotificationListResponseWrapper используется для документации swagger
+type NotificationListResponseWrapper struct {
+	Data      []dto.NotificationData `json:"data"`
+	Errors    []string               `json:"errors,omitempty"`
+	Status    int                    `json:"status"`
+	RequestID string                 `json:"requestId"`
+}
+
+// NotificationResponseWrapper используется для документации swagger
+type NotificationResponseWrapper struct {
+	Data      dto.NotificationData `json:"data"`
+	Errors    []string             `json:"errors,omitempty"`
+	Status    int                  `json:"status"`
+	RequestID string               `json:"requestId"`
 }
 
 // @Summary Проверка состояния здоровья
@@ -430,25 +454,18 @@ func (s *Server) writeJSONResponse(w http.ResponseWriter, r *http.Request, respo
 	}
 }
 
-type notificationRequest struct {
-	EventID uuid.UUID `json:"event_id"`
-	UserID  uuid.UUID `json:"user_id"`
-	Message string    `json:"message"`
-	Time    time.Time `json:"time"`
-}
-
 // @Summary Создать уведомление
 // @Description Создает новое уведомление
 // @Tags notifications
 // @Accept json
 // @Produce json
-// @Param notification body notificationRequest true "Запрос на создание уведомления"
+// @Param notification body dto.NotificationData true "Запрос на создание уведомления"
 // @Success 200 {object} Response
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications [post]
 func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Request) {
-	var notificationRequest notificationRequest
+	var notificationRequest dto.NotificationData
 
 	if err := json.NewDecoder(r.Body).Decode(&notificationRequest); err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
@@ -456,14 +473,9 @@ func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	id, err := s.notificationService.CreateNotification(
-		r.Context(),
-		notificationRequest.EventID,
-		notificationRequest.UserID,
-		notificationRequest.Time,
-		notificationRequest.Message,
-		false,
-	)
+	notificationRequest.Sent = false
+
+	id, err := s.notificationService.CreateNotification(r.Context(), notificationRequest)
 	if err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
@@ -480,13 +492,13 @@ func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Accept json
 // @Produce json
 // @Param id path string true "ID уведомления"
-// @Param notification body notificationRequest true "Запрос на обновление уведомления"
+// @Param notification body dto.NotificationData true "Запрос на обновление уведомления"
 // @Success 204 {object} Response
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications/{id} [put]
 func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Request) {
-	var notificationRequest notificationRequest
+	var notificationRequest dto.NotificationData
 
 	if err := json.NewDecoder(r.Body).Decode(&notificationRequest); err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
@@ -503,15 +515,10 @@ func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = s.notificationService.UpdateNotification(
-		r.Context(),
-		id,
-		notificationRequest.EventID,
-		notificationRequest.UserID,
-		notificationRequest.Time,
-		notificationRequest.Message,
-		false,
-	)
+	notificationRequest.ID = id
+	notificationRequest.Sent = false
+
+	err = s.notificationService.UpdateNotification(r.Context(), id, notificationRequest)
 	if err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
@@ -559,7 +566,7 @@ func (s *Server) deleteNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Accept json
 // @Produce json
 // @Param id path string true "ID уведомления"
-// @Success 200 {object} Response
+// @Success 200 {object} NotificationResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications/{id} [get]
@@ -591,7 +598,7 @@ func (s *Server) getNotificationHandler(w http.ResponseWriter, r *http.Request) 
 // @Produce json
 // @Param start_time query string true "Время начала"
 // @Param end_time query string true "Время окончания"
-// @Success 200 {object} Response
+// @Success 200 {object} NotificationListResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications [get]

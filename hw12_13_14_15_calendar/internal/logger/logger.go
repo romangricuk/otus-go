@@ -7,6 +7,8 @@ import (
 )
 
 type Logger interface {
+	Debug(args ...interface{})
+	Debugf(template string, args ...interface{})
 	Info(args ...interface{})
 	Infof(template string, args ...interface{})
 	Error(args ...interface{})

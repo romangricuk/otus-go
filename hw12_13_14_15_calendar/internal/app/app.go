@@ -33,7 +33,7 @@ func NewApp(config *config.Config) (*App, error) {
 		log.Fatalf("on initializing logger, %s", err)
 	}
 
-	store, err := initStorage(config.Database)
+	store, err := initStorage(config.Database, logInstance)
 	if err != nil {
 		return nil, fmt.Errorf("on initializing storage, %w", err)
 	}
@@ -106,12 +106,12 @@ func (a *App) Stop(ctx context.Context) error {
 	return nil
 }
 
-func initStorage(config config.DatabaseConfig) (store storage.Storage, err error) {
+func initStorage(config config.DatabaseConfig, logger logger.Logger) (store storage.Storage, err error) {
 	switch config.Storage {
 	case "memory":
 		store = memorystorage.New()
 	case "sql":
-		store, err = sqlstorage.New(config)
+		store, err = sqlstorage.New(config, logger)
 		if err != nil {
 			return nil, fmt.Errorf("on initializing SQL storage, %w", err)
 		}

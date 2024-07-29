@@ -13,6 +13,21 @@ definitions:
       userId:
         type: string
     type: object
+  dto.NotificationData:
+    properties:
+      eventID:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      sent:
+        type: boolean
+      time:
+        type: string
+      userID:
+        type: string
+    type: object
   internalhttp.ErrorResponseWrapper:
     properties:
       errors:
@@ -52,6 +67,34 @@ definitions:
       status:
         type: integer
     type: object
+  internalhttp.NotificationListResponseWrapper:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.NotificationData'
+        type: array
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+  internalhttp.NotificationResponseWrapper:
+    properties:
+      data:
+        $ref: '#/definitions/dto.NotificationData'
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
   internalhttp.Response:
     properties:
       data: {}
@@ -63,17 +106,6 @@ definitions:
         type: string
       status:
         type: integer
-    type: object
-  internalhttp.notificationRequest:
-    properties:
-      event_id:
-        type: string
-      message:
-        type: string
-      time:
-        type: string
-      user_id:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -370,7 +402,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.NotificationListResponseWrapper'
         "400":
           description: Bad Request
           schema:
@@ -392,7 +424,7 @@ paths:
         name: notification
         required: true
         schema:
-          $ref: '#/definitions/internalhttp.notificationRequest'
+          $ref: '#/definitions/dto.NotificationData'
       produces:
       - application/json
       responses:
@@ -456,7 +488,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.NotificationResponseWrapper'
         "400":
           description: Bad Request
           schema:
@@ -483,7 +515,7 @@ paths:
         name: notification
         required: true
         schema:
-          $ref: '#/definitions/internalhttp.notificationRequest'
+          $ref: '#/definitions/dto.NotificationData'
       produces:
       - application/json
       responses:

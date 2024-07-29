@@ -2,21 +2,23 @@ package memorystorage
 
 import (
 	"context"
+	"sync"
 
 	"github.com/google/uuid"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
 )
 
 type MemoryStorage struct {
-	events        map[uuid.UUID]storage.Event
-	notifications map[uuid.UUID]storage.Notification
+	eventRepo        *EventRepo
+	notificationRepo *NotificationRepo
 }
 
 func New() *MemoryStorage {
-	return &MemoryStorage{
-		events:        make(map[uuid.UUID]storage.Event),
-		notifications: make(map[uuid.UUID]storage.Notification),
+	store := &MemoryStorage{
+		eventRepo:        &EventRepo{events: make(map[uuid.UUID]storage.Event), mu: sync.RWMutex{}},
+		notificationRepo: &NotificationRepo{notifications: make(map[uuid.UUID]storage.Notification), mu: sync.RWMutex{}},
 	}
+	return store
 }
 
 func (s *MemoryStorage) Connect(context.Context) error {
@@ -30,11 +32,11 @@ func (s *MemoryStorage) Close() error {
 }
 
 func (s *MemoryStorage) EventRepository() storage.EventRepository {
-	return &EventRepo{storage: s}
+	return s.eventRepo
 }
 
 func (s *MemoryStorage) NotificationRepository() storage.NotificationRepository {
-	return &NotificationRepo{storage: s}
+	return s.notificationRepo
 }
 
 func (s *MemoryStorage) HealthCheck(context.Context) error {

@@ -15,7 +15,7 @@ import (
 func TestNotificationService(t *testing.T) {
 	ctx := context.Background()
 	store := memorystorage.New()
-	service := NewNotificationService(store.NotificationRepository())
+	service := NewNotificationService(store)
 
 	notification := dto.NotificationData{
 		EventID: uuid.New(),

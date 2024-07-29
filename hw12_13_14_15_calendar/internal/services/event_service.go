@@ -21,8 +21,8 @@ type EventServiceImpl struct {
 	repo storage.EventRepository
 }
 
-func NewEventService(repo storage.EventRepository) EventService {
-	return &EventServiceImpl{repo: repo}
+func NewEventService(store storage.Storage) EventService {
+	return &EventServiceImpl{repo: store.EventRepository()}
 }
 
 func (s *EventServiceImpl) CreateEvent(ctx context.Context, event dto.EventData) (uuid.UUID, error) {

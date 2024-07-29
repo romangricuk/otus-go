@@ -10,44 +10,43 @@ import (
 )
 
 type EventRepo struct {
-	storage *MemoryStorage
-	mu      sync.RWMutex
+	events map[uuid.UUID]storage.Event
+	mu     sync.RWMutex
 }
 
 func (r *EventRepo) CreateEvent(_ context.Context, event storage.Event) (uuid.UUID, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-
 	event.ID = uuid.New()
-	r.storage.events[event.ID] = event
+	r.events[event.ID] = event
 	return event.ID, nil
 }
 
 func (r *EventRepo) UpdateEvent(_ context.Context, id uuid.UUID, event storage.Event) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if _, exists := r.storage.events[id]; !exists {
+	if _, exists := r.events[id]; !exists {
 		return storage.ErrEventNotFound
 	}
-
-	r.storage.events[id] = event
+	event.ID = id
+	r.events[id] = event
 	return nil
 }
 
 func (r *EventRepo) DeleteEvent(_ context.Context, id uuid.UUID) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if _, exists := r.storage.events[id]; !exists {
+	if _, exists := r.events[id]; !exists {
 		return storage.ErrEventNotFound
 	}
-	delete(r.storage.events, id)
+	delete(r.events, id)
 	return nil
 }
 
 func (r *EventRepo) GetEvent(_ context.Context, id uuid.UUID) (storage.Event, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	event, exists := r.storage.events[id]
+	event, exists := r.events[id]
 	if !exists {
 		return storage.Event{}, storage.ErrEventNotFound
 	}
@@ -58,7 +57,7 @@ func (r *EventRepo) ListEvents(_ context.Context, start, end time.Time) ([]stora
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	var events []storage.Event
-	for _, event := range r.storage.events {
+	for _, event := range r.events {
 		if event.StartTime.After(start) && event.EndTime.Before(end) {
 			events = append(events, event)
 		}

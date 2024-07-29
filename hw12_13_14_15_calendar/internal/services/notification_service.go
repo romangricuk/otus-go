@@ -21,8 +21,8 @@ type NotificationServiceImpl struct {
 	repo storage.NotificationRepository
 }
 
-func NewNotificationService(repo storage.NotificationRepository) NotificationService {
-	return &NotificationServiceImpl{repo: repo}
+func NewNotificationService(store storage.Storage) NotificationService {
+	return &NotificationServiceImpl{repo: store.NotificationRepository()}
 }
 
 func (s *NotificationServiceImpl) CreateNotification(

@@ -45,8 +45,8 @@ func NewApp(config *config.Config) (*App, error) {
 	}
 
 	// Инициализация сервисов
-	app.eventService = services.NewEventService(store.EventRepository())
-	app.notificationService = services.NewNotificationService(store.NotificationRepository())
+	app.eventService = services.NewEventService(store)
+	app.notificationService = services.NewNotificationService(store)
 	app.healthService = services.NewHealthService(store)
 
 	// Initialize servers

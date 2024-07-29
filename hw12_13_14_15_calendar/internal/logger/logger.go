@@ -32,6 +32,8 @@ func New(cfg config.LoggerConfig) (Logger, error) {
 		zapLevel = zap.WarnLevel
 	case "error":
 		zapLevel = zap.ErrorLevel
+	case "fatal":
+		zapLevel = zap.FatalLevel
 	default:
 		zapLevel = zap.InfoLevel
 	}

@@ -15,7 +15,7 @@ import (
 func TestEventService(t *testing.T) {
 	ctx := context.Background()
 	store := memorystorage.New()
-	service := NewEventService(store.EventRepository())
+	service := NewEventService(store)
 
 	event := dto.EventData{
 		Title:       "Test Event",

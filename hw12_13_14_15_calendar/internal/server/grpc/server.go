@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"net"
 
 	"github.com/google/uuid"
@@ -51,7 +52,7 @@ func New(
 func (s *Server) Start(ctx context.Context) error {
 	lis, err := net.Listen("tcp", s.config.Address)
 	if err != nil {
-		return err
+		return fmt.Errorf("on net.Listen: %w", err)
 	}
 
 	// Register gRPC services

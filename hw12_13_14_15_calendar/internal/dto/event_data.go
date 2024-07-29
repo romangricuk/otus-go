@@ -6,9 +6,9 @@ import (
 )
 
 type EventData struct {
-	Title       string
-	Description string
-	StartTime   time.Time
-	EndTime     time.Time
-	UserID      uuid.UUID
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	StartTime   time.Time `json:"startTime"`
+	EndTime     time.Time `json:"endTime"`
+	UserID      uuid.UUID `json:"userId"`
 }

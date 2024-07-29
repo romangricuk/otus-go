@@ -10,7 +10,7 @@ definitions:
         type: string
       title:
         type: string
-      userID:
+      userId:
         type: string
     type: object
   internalhttp.ErrorResponseWrapper:
@@ -374,11 +374,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список уведомлений
       tags:
       - notifications
@@ -403,11 +403,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Создать уведомление
       tags:
       - notifications
@@ -432,11 +432,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Удалить уведомление
       tags:
       - notifications
@@ -460,11 +460,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Получить уведомление
       tags:
       - notifications
@@ -494,11 +494,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Обновить уведомление
       tags:
       - notifications

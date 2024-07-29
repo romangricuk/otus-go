@@ -453,13 +453,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -497,13 +497,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -541,13 +541,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -592,13 +592,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -634,13 +634,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -663,7 +663,7 @@ const docTemplate = `{
                 "title": {
                     "type": "string"
                 },
-                "userID": {
+                "userId": {
                     "type": "string"
                 }
             }

@@ -104,6 +104,23 @@ func (s *Server) Stop(ctx context.Context) error {
 	return nil
 }
 
+func parseStartAndEndTime(r *http.Request) (time.Time, time.Time, error) {
+	startTime := r.URL.Query().Get("startTime")
+	endTime := r.URL.Query().Get("endTime")
+
+	start, err := time.Parse(time.RFC3339, startTime)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+
+	end, err := time.Parse(time.RFC3339, endTime)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+
+	return start, end, nil
+}
+
 // ErrorResponseWrapper используется для документации swagger.
 type ErrorResponseWrapper struct {
 	Errors    []string `json:"errors,omitempty"`
@@ -307,19 +324,9 @@ func (s *Server) getEventHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} ErrorResponseWrapper
 // @Router /events [get].
 func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
-	startTime := r.URL.Query().Get("startTime")
-	endTime := r.URL.Query().Get("endTime")
-
-	start, err := time.Parse(time.RFC3339, startTime)
+	start, end, err := parseStartAndEndTime(r)
 	if err != nil {
-		response := NewResponse(nil, []string{"Некорректное время начала"}, http.StatusBadRequest)
-		s.writeJSONResponse(w, r, response)
-		return
-	}
-
-	end, err := time.Parse(time.RFC3339, endTime)
-	if err != nil {
-		response := NewResponse(nil, []string{"Некорректное время окончания"}, http.StatusBadRequest)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -603,19 +610,9 @@ func (s *Server) getNotificationHandler(w http.ResponseWriter, r *http.Request) 
 // @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications [get].
 func (s *Server) listNotificationsHandler(w http.ResponseWriter, r *http.Request) {
-	startTime := r.URL.Query().Get("start_time")
-	endTime := r.URL.Query().Get("end_time")
-
-	start, err := time.Parse(time.RFC3339, startTime)
+	start, end, err := parseStartAndEndTime(r)
 	if err != nil {
-		response := NewResponse(nil, []string{"Некорректное время начала"}, http.StatusBadRequest)
-		s.writeJSONResponse(w, r, response)
-		return
-	}
-
-	end, err := time.Parse(time.RFC3339, endTime)
-	if err != nil {
-		response := NewResponse(nil, []string{"Некорректное время окончания"}, http.StatusBadRequest)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}

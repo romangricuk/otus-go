@@ -1,23 +1,24 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"os"
 	"strconv"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
-	HTTPServer HttpServerConfig
-	GRPCServer GrpcServerConfig
+	HTTPServer HTTPServerConfig
+	GRPCServer GRPCServerConfig
 	Database   DatabaseConfig
 	Logger     LoggerConfig
 }
 
-type HttpServerConfig struct {
+type HTTPServerConfig struct {
 	Address string
 }
 
-type GrpcServerConfig struct {
+type GRPCServerConfig struct {
 	Address string
 }
 

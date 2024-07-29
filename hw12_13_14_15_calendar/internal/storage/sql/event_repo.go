@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
 )
 

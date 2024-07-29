@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 
 	// "github.com/lib/pq" подключение драйвера postgres.
 	_ "github.com/lib/pq"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
 )
 

@@ -25,13 +25,20 @@ func NewNotificationService(repo storage.NotificationRepository) NotificationSer
 	return &NotificationServiceImpl{repo: repo}
 }
 
-func (s *NotificationServiceImpl) CreateNotification(ctx context.Context, notification dto.NotificationData) (uuid.UUID, error) {
+func (s *NotificationServiceImpl) CreateNotification(
+	ctx context.Context,
+	notification dto.NotificationData,
+) (uuid.UUID, error) {
 	storageNotification := dto.ToStorageNotification(notification)
 	storageNotification.ID = uuid.New()
 	return s.repo.CreateNotification(ctx, storageNotification)
 }
 
-func (s *NotificationServiceImpl) UpdateNotification(ctx context.Context, id uuid.UUID, notification dto.NotificationData) error {
+func (s *NotificationServiceImpl) UpdateNotification(
+	ctx context.Context,
+	id uuid.UUID,
+	notification dto.NotificationData,
+) error {
 	storageNotification := dto.ToStorageNotification(notification)
 	return s.repo.UpdateNotification(ctx, id, storageNotification)
 }
@@ -48,7 +55,11 @@ func (s *NotificationServiceImpl) GetNotification(ctx context.Context, id uuid.U
 	return dto.FromStorageNotification(storageNotification), nil
 }
 
-func (s *NotificationServiceImpl) ListNotifications(ctx context.Context, start, end time.Time) ([]dto.NotificationData, error) {
+func (s *NotificationServiceImpl) ListNotifications(
+	ctx context.Context,
+	start,
+	end time.Time,
+) ([]dto.NotificationData, error) {
 	storageNotifications, err := s.repo.ListNotifications(ctx, start, end)
 	if err != nil {
 		return nil, err

@@ -3,11 +3,11 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/server/grpc"
 	"log"
 
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/server/grpc"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/server/internalhttp"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/services"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"

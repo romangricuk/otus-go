@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"net/http"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	// _ "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api" нужен для инициализации документации Swagger.
 	_ "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/services"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -33,7 +33,7 @@ type Server struct {
 }
 
 func New(
-	cfg config.HttpServerConfig,
+	cfg config.HTTPServerConfig,
 	logger logger.Logger,
 	eventService services.EventService,
 	notificationService services.NotificationService,
@@ -104,14 +104,14 @@ func (s *Server) Stop(ctx context.Context) error {
 	return nil
 }
 
-// ErrorResponseWrapper используется для документации swagger
+// ErrorResponseWrapper используется для документации swagger.
 type ErrorResponseWrapper struct {
 	Errors    []string `json:"errors,omitempty"`
 	Status    int      `json:"status"`
 	RequestID string   `json:"requestId"`
 }
 
-// EventListResponseWrapper используется для документации swagger
+// EventListResponseWrapper используется для документации swagger.
 type EventListResponseWrapper struct {
 	Data      []dto.EventData `json:"data"`
 	Errors    []string        `json:"errors,omitempty"`
@@ -119,7 +119,7 @@ type EventListResponseWrapper struct {
 	RequestID string          `json:"requestId"`
 }
 
-// EventResponseWrapper используется для документации swagger
+// EventResponseWrapper используется для документации swagger.
 type EventResponseWrapper struct {
 	Data      dto.EventData `json:"data"`
 	Errors    []string      `json:"errors,omitempty"`
@@ -127,7 +127,7 @@ type EventResponseWrapper struct {
 	RequestID string        `json:"requestId"`
 }
 
-// NotificationListResponseWrapper используется для документации swagger
+// NotificationListResponseWrapper используется для документации swagger.
 type NotificationListResponseWrapper struct {
 	Data      []dto.NotificationData `json:"data"`
 	Errors    []string               `json:"errors,omitempty"`
@@ -135,7 +135,7 @@ type NotificationListResponseWrapper struct {
 	RequestID string                 `json:"requestId"`
 }
 
-// NotificationResponseWrapper используется для документации swagger
+// NotificationResponseWrapper используется для документации swagger.
 type NotificationResponseWrapper struct {
 	Data      dto.NotificationData `json:"data"`
 	Errors    []string             `json:"errors,omitempty"`
@@ -344,7 +344,7 @@ func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} EventListResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
-// @Router /events/day [get]
+// @Router /events/day [get].
 func (s *Server) listEventsForDateHandler(w http.ResponseWriter, r *http.Request) {
 	date := r.URL.Query().Get("date")
 
@@ -377,7 +377,7 @@ func (s *Server) listEventsForDateHandler(w http.ResponseWriter, r *http.Request
 // @Success 200 {object} EventListResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
-// @Router /events/week [get]
+// @Router /events/week [get].
 func (s *Server) listEventsForWeekHandler(w http.ResponseWriter, r *http.Request) {
 	date := r.URL.Query().Get("date")
 
@@ -410,7 +410,7 @@ func (s *Server) listEventsForWeekHandler(w http.ResponseWriter, r *http.Request
 // @Success 200 {object} EventListResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
-// @Router /events/month [get]
+// @Router /events/month [get].
 func (s *Server) listEventsForMonthHandler(w http.ResponseWriter, r *http.Request) {
 	date := r.URL.Query().Get("date")
 
@@ -463,7 +463,7 @@ func (s *Server) writeJSONResponse(w http.ResponseWriter, r *http.Request, respo
 // @Success 200 {object} Response
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
-// @Router /notifications [post]
+// @Router /notifications [post].
 func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	var notificationRequest dto.NotificationData
 
@@ -496,7 +496,7 @@ func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Success 204 {object} Response
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
-// @Router /notifications/{id} [put]
+// @Router /notifications/{id} [put].
 func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	var notificationRequest dto.NotificationData
 
@@ -538,7 +538,7 @@ func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Success 204 {object} Response
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
-// @Router /notifications/{id} [delete]
+// @Router /notifications/{id} [delete].
 func (s *Server) deleteNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	idStr := vars["id"]
@@ -569,7 +569,7 @@ func (s *Server) deleteNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Success 200 {object} NotificationResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
-// @Router /notifications/{id} [get]
+// @Router /notifications/{id} [get].
 func (s *Server) getNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	idStr := vars["id"]
@@ -601,7 +601,7 @@ func (s *Server) getNotificationHandler(w http.ResponseWriter, r *http.Request) 
 // @Success 200 {object} NotificationListResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
-// @Router /notifications [get]
+// @Router /notifications [get].
 func (s *Server) listNotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	startTime := r.URL.Query().Get("start_time")
 	endTime := r.URL.Query().Get("end_time")

@@ -1,11 +1,12 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
 )
 
 type NotificationData struct {
@@ -39,7 +40,7 @@ func FromStorageNotification(notification storage.Notification) NotificationData
 	}
 }
 
-func ToApiNotification(notification NotificationData) *api.Notification {
+func ToAPINotification(notification NotificationData) *api.Notification {
 	return &api.Notification{
 		Id:      notification.ID.String(),
 		EventId: notification.EventID.String(),
@@ -50,7 +51,7 @@ func ToApiNotification(notification NotificationData) *api.Notification {
 	}
 }
 
-func FromApiNotification(notification *api.Notification) NotificationData {
+func FromAPINotification(notification *api.Notification) NotificationData {
 	return NotificationData{
 		ID:      uuid.MustParse(notification.GetId()),
 		EventID: uuid.MustParse(notification.GetEventId()),

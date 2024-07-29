@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"

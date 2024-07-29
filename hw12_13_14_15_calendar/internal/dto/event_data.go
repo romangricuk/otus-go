@@ -1,11 +1,12 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
 )
 
 type EventData struct {
@@ -39,7 +40,7 @@ func FromStorageEvent(event storage.Event) EventData {
 	}
 }
 
-func ToApiEvent(event EventData) *api.Event {
+func ToAPIEvent(event EventData) *api.Event {
 	return &api.Event{
 		Id:          event.ID.String(),
 		Title:       event.Title,
@@ -50,7 +51,7 @@ func ToApiEvent(event EventData) *api.Event {
 	}
 }
 
-func FromApiEvent(event *api.Event) EventData {
+func FromAPIEvent(event *api.Event) EventData {
 	return EventData{
 		ID:          uuid.MustParse(event.GetId()),
 		Title:       event.GetTitle(),

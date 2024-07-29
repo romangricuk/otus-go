@@ -22,7 +22,11 @@ func (r *NotificationRepo) CreateNotification(_ context.Context, notification st
 	return notification.ID, nil
 }
 
-func (r *NotificationRepo) UpdateNotification(_ context.Context, id uuid.UUID, notification storage.Notification) error {
+func (r *NotificationRepo) UpdateNotification(
+	_ context.Context,
+	id uuid.UUID,
+	notification storage.Notification,
+) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if _, exists := r.notifications[id]; !exists {

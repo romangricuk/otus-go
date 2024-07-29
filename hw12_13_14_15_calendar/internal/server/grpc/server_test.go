@@ -2,11 +2,11 @@ package grpc
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"net"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
@@ -48,14 +48,21 @@ func TestGRPCServer(t *testing.T) {
 	)
 	require.NoError(t, err)
 
+	errChan := make(chan error, 1)
 	go func() {
 		if err := grpcServer.Start(context.Background()); err != nil {
-			t.Fatalf("failed to start gRPC server: %v", err)
+			errChan <- err
 		}
 	}()
 
 	// Ждем, пока сервер полностью запустится
 	time.Sleep(2 * time.Second)
+
+	select {
+	case err := <-errChan:
+		require.NoError(t, err)
+	default:
+	}
 
 	t.Logf("Listening on: %s\n", addr)
 

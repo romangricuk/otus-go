@@ -88,7 +88,12 @@ func (r *EventRepo) ListEvents(ctx context.Context, start, end time.Time) ([]sto
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			r.logger.Errorf("on closing rows in ListEvents: %v", err)
+		}
+	}(rows)
 
 	var events []storage.Event
 	for rows.Next() {

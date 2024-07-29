@@ -31,6 +31,8 @@ func (r *NotificationRepo) CreateNotification(
 	id := uuid.New()
 	query := `INSERT INTO notifications (id, event_id, user_id, time, message, sent) 
               VALUES ($1, $2, $3, $4, $5, $6)`
+	r.logger.Debugf("CreateNotification SQL: %s", query)
+
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
@@ -53,6 +55,8 @@ func (r *NotificationRepo) UpdateNotification(
 	notification storage.Notification,
 ) error {
 	query := `UPDATE notifications SET event_id = $2, user_id = $3, time = $4, message = $5, sent = $6 WHERE id = $1`
+	r.logger.Debugf("UpdateNotification SQL: %s", query)
+
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
@@ -68,12 +72,16 @@ func (r *NotificationRepo) UpdateNotification(
 
 func (r *NotificationRepo) DeleteNotification(ctx context.Context, id uuid.UUID) error {
 	query := `DELETE FROM notifications WHERE id=$1`
+	r.logger.Debugf("DeleteNotification SQL: %s", query)
+
 	_, err := r.db.ExecContext(ctx, query, id)
 	return err
 }
 
 func (r *NotificationRepo) GetNotification(ctx context.Context, id uuid.UUID) (storage.Notification, error) {
 	query := `SELECT id, event_id, user_id ,time, message, sent FROM notifications WHERE id=$1`
+	r.logger.Debugf("GetNotification SQL: %s", query)
+
 	row := r.db.QueryRowContext(ctx, query, id)
 	var notification storage.Notification
 
@@ -97,11 +105,18 @@ func (r *NotificationRepo) ListNotifications(
 	end time.Time,
 ) ([]storage.Notification, error) {
 	query := `SELECT id, event_id, user_id, time, message, sent FROM notifications WHERE time >= $1 AND time <= $2`
+	r.logger.Debugf("ListNotifications SQL: %s", query)
+
 	rows, err := r.db.QueryContext(ctx, query, start, end)
 	if err != nil {
 		return nil, fmt.Errorf("on list notifications: %w", err)
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			r.logger.Errorf("on closing rows in ListNotifications: %v", err)
+		}
+	}(rows)
 
 	var notifications []storage.Notification
 	for rows.Next() {

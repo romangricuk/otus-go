@@ -2,19 +2,27 @@ package grpc
 
 import (
 	"context"
+	"github.com/google/uuid"
+	"net"
+
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/services"
 	"google.golang.org/grpc"
-	"net"
+	"google.golang.org/grpc/reflection"
 )
 
 type Server struct {
+	api.UnimplementedEventServiceServer
+	api.UnimplementedNotificationServiceServer
 	grpcServer          *grpc.Server
+	config              config.GrpcServerConfig
 	eventService        services.EventService
 	notificationService services.NotificationService
 	healthService       services.HealthService
 	logger              logger.Logger
-	listener            net.Listener
 }
 
 func New(
@@ -22,42 +30,167 @@ func New(
 	notificationService services.NotificationService,
 	healthService services.HealthService,
 	logger logger.Logger,
-	address string,
+	config config.GrpcServerConfig,
 ) (*Server, error) {
-	listener, err := net.Listen("tcp", address)
-	if err != nil {
-		return nil, err
-	}
-
-	s := &Server{
-		eventService:        eventService,
-		notificationService: notificationService,
-		healthService:       healthService,
-		logger:              logger,
-		listener:            listener,
-	}
-
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(LoggingInterceptor(logger)),
 	)
 
-	s.grpcServer = grpcServer
+	server := &Server{
+		eventService:        eventService,
+		notificationService: notificationService,
+		healthService:       healthService,
+		logger:              logger,
+		config:              config,
+		grpcServer:          grpcServer,
+	}
 
-	return s, nil
+	return server, nil
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	s.logger.Info("gRPC сервер запущен")
+	lis, err := net.Listen("tcp", s.config.Address)
+	if err != nil {
+		return err
+	}
+
+	// Register gRPC services
+	api.RegisterEventServiceServer(s.grpcServer, s)
+	api.RegisterNotificationServiceServer(s.grpcServer, s)
+
+	// Register reflection service on gRPC server.
+	reflection.Register(s.grpcServer)
 
 	go func() {
 		<-ctx.Done()
 		s.Stop(ctx)
 	}()
 
-	return s.grpcServer.Serve(s.listener)
+	s.logger.Infof("gRPC server started. Listening on %s", s.config.Address)
+	return s.grpcServer.Serve(lis)
 }
 
-func (s *Server) Stop(ctx context.Context) {
+func (s *Server) Stop(_ context.Context) {
 	s.grpcServer.GracefulStop()
-	s.logger.Info("gRPC сервер остановлен")
+	s.logger.Info("gRPC server stopped gracefully")
+}
+
+func (s *Server) CreateEvent(ctx context.Context, req *api.CreateEventRequest) (*api.CreateEventResponse, error) {
+	event := dto.EventData{
+		Title:       req.GetTitle(),
+		Description: req.GetDescription(),
+		StartTime:   req.GetStartTime().AsTime(),
+		EndTime:     req.GetEndTime().AsTime(),
+		UserID:      uuid.MustParse(req.GetUserId()),
+	}
+	id, err := s.eventService.CreateEvent(ctx, event)
+	if err != nil {
+		return nil, err
+	}
+	return &api.CreateEventResponse{Id: id.String()}, nil
+}
+
+func (s *Server) UpdateEvent(ctx context.Context, req *api.UpdateEventRequest) (*api.UpdateEventResponse, error) {
+	event := dto.EventData{
+		Title:       req.GetTitle(),
+		Description: req.GetDescription(),
+		StartTime:   req.GetStartTime().AsTime(),
+		EndTime:     req.GetEndTime().AsTime(),
+		UserID:      uuid.MustParse(req.GetUserId()),
+	}
+	err := s.eventService.UpdateEvent(ctx, uuid.MustParse(req.GetId()), event)
+	if err != nil {
+		return nil, err
+	}
+	return &api.UpdateEventResponse{}, nil
+}
+
+func (s *Server) DeleteEvent(ctx context.Context, req *api.DeleteEventRequest) (*api.DeleteEventResponse, error) {
+	err := s.eventService.DeleteEvent(ctx, uuid.MustParse(req.GetId()))
+	if err != nil {
+		return nil, err
+	}
+	return &api.DeleteEventResponse{}, nil
+}
+
+func (s *Server) GetEvent(ctx context.Context, req *api.GetEventRequest) (*api.GetEventResponse, error) {
+	event, err := s.eventService.GetEvent(ctx, uuid.MustParse(req.GetId()))
+	if err != nil {
+		return nil, err
+	}
+	return &api.GetEventResponse{Event: dto.ToApiEvent(event)}, nil
+}
+
+func (s *Server) ListEvents(ctx context.Context, req *api.ListEventsRequest) (*api.ListEventsResponse, error) {
+	start := req.GetStartTime().AsTime()
+	end := req.GetEndTime().AsTime()
+	events, err := s.eventService.ListEvents(ctx, start, end)
+	if err != nil {
+		return nil, err
+	}
+	apiEvents := make([]*api.Event, len(events))
+	for i, event := range events {
+		apiEvents[i] = dto.ToApiEvent(event)
+	}
+	return &api.ListEventsResponse{Events: apiEvents}, nil
+}
+
+func (s *Server) CreateNotification(ctx context.Context, req *api.CreateNotificationRequest) (*api.CreateNotificationResponse, error) {
+	notification := dto.NotificationData{
+		EventID: uuid.MustParse(req.GetEventId()),
+		UserID:  uuid.MustParse(req.GetUserId()),
+		Time:    req.GetTime().AsTime(),
+		Message: req.GetMessage(),
+		Sent:    req.GetSent(),
+	}
+	id, err := s.notificationService.CreateNotification(ctx, notification)
+	if err != nil {
+		return nil, err
+	}
+	return &api.CreateNotificationResponse{Id: id.String()}, nil
+}
+
+func (s *Server) UpdateNotification(ctx context.Context, req *api.UpdateNotificationRequest) (*api.UpdateNotificationResponse, error) {
+	notification := dto.NotificationData{
+		EventID: uuid.MustParse(req.GetEventId()),
+		UserID:  uuid.MustParse(req.GetUserId()),
+		Time:    req.GetTime().AsTime(),
+		Message: req.GetMessage(),
+		Sent:    req.GetSent(),
+	}
+	err := s.notificationService.UpdateNotification(ctx, uuid.MustParse(req.GetId()), notification)
+	if err != nil {
+		return nil, err
+	}
+	return &api.UpdateNotificationResponse{}, nil
+}
+
+func (s *Server) DeleteNotification(ctx context.Context, req *api.DeleteNotificationRequest) (*api.DeleteNotificationResponse, error) {
+	err := s.notificationService.DeleteNotification(ctx, uuid.MustParse(req.GetId()))
+	if err != nil {
+		return nil, err
+	}
+	return &api.DeleteNotificationResponse{}, nil
+}
+
+func (s *Server) GetNotification(ctx context.Context, req *api.GetNotificationRequest) (*api.GetNotificationResponse, error) {
+	notification, err := s.notificationService.GetNotification(ctx, uuid.MustParse(req.GetId()))
+	if err != nil {
+		return nil, err
+	}
+	return &api.GetNotificationResponse{Notification: dto.ToApiNotification(notification)}, nil
+}
+
+func (s *Server) ListNotifications(ctx context.Context, req *api.ListNotificationsRequest) (*api.ListNotificationsResponse, error) {
+	start := req.GetStartTime().AsTime()
+	end := req.GetEndTime().AsTime()
+	notifications, err := s.notificationService.ListNotifications(ctx, start, end)
+	if err != nil {
+		return nil, err
+	}
+	apiNotifications := make([]*api.Notification, len(notifications))
+	for i, notification := range notifications {
+		apiNotifications[i] = dto.ToApiNotification(notification)
+	}
+	return &api.ListNotificationsResponse{Notifications: apiNotifications}, nil
 }

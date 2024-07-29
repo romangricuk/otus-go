@@ -11,7 +11,7 @@ run: build
 	$(BIN) -config ./configs/config.toml
 
 generate:
-	protoc --proto_path=api --go_out=api --go-grpc_out=api api/*.proto
+	protoc --proto_path=api --go_out=paths=source_relative:./api --go-grpc_out=paths=source_relative:./api api/*.proto
 
 #Генерация UML диаграммы проекта
 #предварительно требуется установка goplantuml
@@ -21,7 +21,7 @@ generate-uml-diagram:
 
 #генерация swagger документации
 swagger:
-	swag init -g ./internal/server/internalhttp/server.go -o ./docs
+	swag init -g ./internal/server/internalhttp/server.go -o ./api
 
 build-img:
 	docker build \

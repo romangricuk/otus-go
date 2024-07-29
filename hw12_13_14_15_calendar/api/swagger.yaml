@@ -6,6 +6,8 @@ definitions:
         type: string
       endTime:
         type: string
+      id:
+        type: string
       startTime:
         type: string
       title:
@@ -15,7 +17,7 @@ definitions:
     type: object
   dto.NotificationData:
     properties:
-      eventID:
+      eventId:
         type: string
       id:
         type: string
@@ -25,7 +27,7 @@ definitions:
         type: boolean
       time:
         type: string
-      userID:
+      userId:
         type: string
     type: object
   internalhttp.ErrorResponseWrapper:

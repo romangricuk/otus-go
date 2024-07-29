@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package api;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api;api";
+
+service NotificationService {
+  rpc CreateNotification(CreateNotificationRequest) returns (CreateNotificationResponse);
+  rpc UpdateNotification(UpdateNotificationRequest) returns (UpdateNotificationResponse);
+  rpc DeleteNotification(DeleteNotificationRequest) returns (DeleteNotificationResponse);
+  rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+}
+
+message CreateNotificationRequest {
+  string event_id = 1;
+  string user_id = 2;
+  google.protobuf.Timestamp time = 3;
+  string message = 4;
+  bool sent = 5;
+}
+
+message CreateNotificationResponse {
+  string id = 1;
+}
+
+message UpdateNotificationRequest {
+  string id = 1;
+  string event_id = 2;
+  string user_id = 3;
+  google.protobuf.Timestamp time = 4;
+  string message = 5;
+  bool sent = 6;
+}
+
+message UpdateNotificationResponse {}
+
+message DeleteNotificationRequest {
+  string id = 1;
+}
+
+message DeleteNotificationResponse {}
+
+message GetNotificationRequest {
+  string id = 1;
+}
+
+message GetNotificationResponse {
+  Notification notification = 1;
+}
+
+message ListNotificationsRequest {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+}
+
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+}
+
+message Notification {
+  string id = 1;
+  string event_id = 2;
+  string user_id = 3;
+  google.protobuf.Timestamp time = 4;
+  string message = 5;
+  bool sent = 6;
+}

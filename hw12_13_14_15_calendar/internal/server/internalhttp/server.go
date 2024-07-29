@@ -10,8 +10,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	// _ "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/docs" нужен для инициализации документации Swagger.
-	_ "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/docs"
+	// _ "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api" нужен для инициализации документации Swagger.
+	_ "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/services"

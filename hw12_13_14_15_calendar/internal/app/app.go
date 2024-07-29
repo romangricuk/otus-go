@@ -63,7 +63,7 @@ func NewApp(config *config.Config) (*App, error) {
 		app.notificationService,
 		app.healthService,
 		logInstance,
-		config.GRPCServer.Address,
+		config.GRPCServer,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("on initializing gRPC server, %w", err)

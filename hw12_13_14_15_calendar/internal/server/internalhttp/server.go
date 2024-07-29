@@ -110,9 +110,9 @@ func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	err := s.healthService.HealthCheck(ctx)
 	var response Response
 	if err != nil {
-		response = NewResponse(nil, []string{"Сервис недоступен"}, http.StatusServiceUnavailable, "")
+		response = NewResponse(nil, []string{"Сервис недоступен"}, http.StatusServiceUnavailable)
 	} else {
-		response = NewResponse(map[string]string{"status": "ok"}, nil, http.StatusOK, "")
+		response = NewResponse(map[string]string{"status": "ok"}, nil, http.StatusOK)
 	}
 
 	s.writeJSONResponse(w, r, response)
@@ -141,7 +141,7 @@ func (s *Server) createEventHandler(w http.ResponseWriter, r *http.Request) {
 	var eventRequest eventRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&eventRequest); err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -155,12 +155,12 @@ func (s *Server) createEventHandler(w http.ResponseWriter, r *http.Request) {
 		eventRequest.UserID,
 	)
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	response := NewResponse(map[string]interface{}{"id": id}, nil, http.StatusOK, "")
+	response := NewResponse(map[string]interface{}{"id": id}, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -179,7 +179,7 @@ func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
 	var eventRequest eventRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&eventRequest); err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -187,7 +187,7 @@ func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -202,12 +202,12 @@ func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
 		eventRequest.UserID,
 	)
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	response := NewResponse(nil, nil, http.StatusNoContent, "")
+	response := NewResponse(nil, nil, http.StatusNoContent)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -225,19 +225,19 @@ func (s *Server) deleteEventHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
 	err = s.eventService.DeleteEvent(r.Context(), id)
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	response := NewResponse(nil, nil, http.StatusNoContent, "")
+	response := NewResponse(nil, nil, http.StatusNoContent)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -255,19 +255,19 @@ func (s *Server) getEventHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := uuid.Parse(vars["id"])
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
 	event, err := s.eventService.GetEvent(r.Context(), id)
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	response := NewResponse(event, nil, http.StatusOK, "")
+	response := NewResponse(event, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -288,26 +288,26 @@ func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
 
 	start, err := time.Parse(time.RFC3339, startTime)
 	if err != nil {
-		response := NewResponse(nil, []string{"Некорректное время начала"}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{"Некорректное время начала"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
 	end, err := time.Parse(time.RFC3339, endTime)
 	if err != nil {
-		response := NewResponse(nil, []string{"Некорректное время окончания"}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{"Некорректное время окончания"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
 	events, err := s.eventService.ListEvents(r.Context(), start, end)
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	response := NewResponse(events, nil, http.StatusOK, "")
+	response := NewResponse(events, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -326,7 +326,7 @@ func (s *Server) listEventsForDateHandler(w http.ResponseWriter, r *http.Request
 
 	start, err := time.Parse(time.DateOnly, date)
 	if err != nil {
-		response := NewResponse(nil, []string{"Некорректная дата"}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{"Некорректная дата"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -335,12 +335,12 @@ func (s *Server) listEventsForDateHandler(w http.ResponseWriter, r *http.Request
 
 	events, err := s.eventService.ListEvents(r.Context(), start, end)
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	response := NewResponse(events, nil, http.StatusOK, "")
+	response := NewResponse(events, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -359,7 +359,7 @@ func (s *Server) listEventsForWeekHandler(w http.ResponseWriter, r *http.Request
 
 	start, err := time.Parse(time.DateOnly, date)
 	if err != nil {
-		response := NewResponse(nil, []string{"Некорректная дата"}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{"Некорректная дата"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -368,12 +368,12 @@ func (s *Server) listEventsForWeekHandler(w http.ResponseWriter, r *http.Request
 
 	events, err := s.eventService.ListEvents(r.Context(), start, end)
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	response := NewResponse(events, nil, http.StatusOK, "")
+	response := NewResponse(events, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -392,7 +392,7 @@ func (s *Server) listEventsForMonthHandler(w http.ResponseWriter, r *http.Reques
 
 	start, err := time.Parse(time.DateOnly, date)
 	if err != nil {
-		response := NewResponse(nil, []string{"Некорректная дата"}, http.StatusBadRequest, "")
+		response := NewResponse(nil, []string{"Некорректная дата"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -401,12 +401,12 @@ func (s *Server) listEventsForMonthHandler(w http.ResponseWriter, r *http.Reques
 
 	events, err := s.eventService.ListEvents(r.Context(), start, end)
 	if err != nil {
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, "")
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	response := NewResponse(events, nil, http.StatusOK, "")
+	response := NewResponse(events, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -451,8 +451,7 @@ func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Reques
 	var notificationRequest notificationRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&notificationRequest); err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest, requestID)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -466,14 +465,12 @@ func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Reques
 		false,
 	)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, requestID)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	requestID := r.Context().Value("requestID").(string)
-	response := NewResponse(map[string]interface{}{"id": id}, nil, http.StatusOK, requestID)
+	response := NewResponse(map[string]interface{}{"id": id}, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -492,8 +489,7 @@ func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Reques
 	var notificationRequest notificationRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&notificationRequest); err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest, requestID)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -502,8 +498,7 @@ func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Reques
 	idStr := vars["id"]
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{"Invalid ID format"}, http.StatusBadRequest, requestID)
+		response := NewResponse(nil, []string{"Invalid ID format"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
@@ -518,14 +513,12 @@ func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Reques
 		false,
 	)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, requestID)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	requestID := r.Context().Value("requestID").(string)
-	response := NewResponse(nil, nil, http.StatusNoContent, requestID)
+	response := NewResponse(nil, nil, http.StatusNoContent)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -544,22 +537,19 @@ func (s *Server) deleteNotificationHandler(w http.ResponseWriter, r *http.Reques
 	idStr := vars["id"]
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{"Invalid ID format"}, http.StatusBadRequest, requestID)
+		response := NewResponse(nil, []string{"Invalid ID format"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
 	err = s.notificationService.DeleteNotification(r.Context(), id)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, requestID)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	requestID := r.Context().Value("requestID").(string)
-	response := NewResponse(nil, nil, http.StatusNoContent, requestID)
+	response := NewResponse(nil, nil, http.StatusNoContent)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -578,22 +568,19 @@ func (s *Server) getNotificationHandler(w http.ResponseWriter, r *http.Request) 
 	idStr := vars["id"]
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{"Invalid ID format"}, http.StatusBadRequest, requestID)
+		response := NewResponse(nil, []string{"Invalid ID format"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
 	notification, err := s.notificationService.GetNotification(r.Context(), id)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, requestID)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	requestID := r.Context().Value("requestID").(string)
-	response := NewResponse(notification, nil, http.StatusOK, requestID)
+	response := NewResponse(notification, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }
 
@@ -614,29 +601,25 @@ func (s *Server) listNotificationsHandler(w http.ResponseWriter, r *http.Request
 
 	start, err := time.Parse(time.RFC3339, startTime)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{"Некорректное время начала"}, http.StatusBadRequest, requestID)
+		response := NewResponse(nil, []string{"Некорректное время начала"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
 	end, err := time.Parse(time.RFC3339, endTime)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{"Некорректное время окончания"}, http.StatusBadRequest, requestID)
+		response := NewResponse(nil, []string{"Некорректное время окончания"}, http.StatusBadRequest)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
 	notifications, err := s.notificationService.ListNotifications(r.Context(), start, end)
 	if err != nil {
-		requestID := r.Context().Value("requestID").(string)
-		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError, requestID)
+		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
 		return
 	}
 
-	requestID := r.Context().Value("requestID").(string)
-	response := NewResponse(notifications, nil, http.StatusOK, requestID)
+	response := NewResponse(notifications, nil, http.StatusOK)
 	s.writeJSONResponse(w, r, response)
 }

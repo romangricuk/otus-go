@@ -48,19 +48,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.EventListResponseWrapper"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -84,7 +84,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.eventRequest"
+                            "$ref": "#/definitions/dto.EventData"
                         }
                     }
                 ],
@@ -98,13 +98,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -128,7 +128,7 @@ const docTemplate = `{
                         "type": "string",
                         "format": "date",
                         "example": "2024-07-24",
-                        "description": "Дата начала",
+                        "description": "Дата",
                         "name": "date",
                         "in": "query",
                         "required": true
@@ -138,19 +138,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.EventListResponseWrapper"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -184,19 +184,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.EventListResponseWrapper"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -230,19 +230,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.EventListResponseWrapper"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -274,19 +274,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.EventResponseWrapper"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -317,7 +317,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.eventRequest"
+                            "$ref": "#/definitions/dto.EventData"
                         }
                     }
                 ],
@@ -331,13 +331,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -373,13 +373,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internalhttp.Response"
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -402,19 +402,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/internalhttp.Response"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/internalhttp.ErrorResponseWrapper"
                         }
                     }
                 }
@@ -654,6 +648,86 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.EventData": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "internalhttp.ErrorResponseWrapper": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internalhttp.EventListResponseWrapper": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.EventData"
+                    }
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internalhttp.EventResponseWrapper": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.EventData"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
         "internalhttp.Response": {
             "type": "object",
             "properties": {
@@ -669,26 +743,6 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "integer"
-                }
-            }
-        },
-        "internalhttp.eventRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "endTime": {
-                    "type": "string"
-                },
-                "startTime": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
                 }
             }
         },

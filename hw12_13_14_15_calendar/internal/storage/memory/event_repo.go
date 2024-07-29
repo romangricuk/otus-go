@@ -17,11 +17,7 @@ type EventRepo struct {
 func (r *EventRepo) CreateEvent(_ context.Context, event storage.Event) (uuid.UUID, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	for _, e := range r.storage.events {
-		if e.StartTime.Before(event.EndTime) && event.StartTime.Before(e.EndTime) {
-			return uuid.Nil, storage.ErrDateBusy
-		}
-	}
+
 	event.ID = uuid.New()
 	r.storage.events[event.ID] = event
 	return event.ID, nil
@@ -33,11 +29,7 @@ func (r *EventRepo) UpdateEvent(_ context.Context, id uuid.UUID, event storage.E
 	if _, exists := r.storage.events[id]; !exists {
 		return storage.ErrEventNotFound
 	}
-	for _, e := range r.storage.events {
-		if e.ID != id && e.StartTime.Before(event.EndTime) && event.StartTime.Before(e.EndTime) {
-			return storage.ErrDateBusy
-		}
-	}
+
 	r.storage.events[id] = event
 	return nil
 }

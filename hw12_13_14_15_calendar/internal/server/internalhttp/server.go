@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"net/http"
 	"time"
 
@@ -95,13 +96,36 @@ func (s *Server) Stop(ctx context.Context) error {
 	return nil
 }
 
+// ErrorResponseWrapper используется для документации swagger
+type ErrorResponseWrapper struct {
+	Errors    []string `json:"errors,omitempty"`
+	Status    int      `json:"status"`
+	RequestID string   `json:"requestId"`
+}
+
+// EventListResponseWrapper используется для документации swagger
+type EventListResponseWrapper struct {
+	Data      []dto.EventData `json:"data"`
+	Errors    []string        `json:"errors,omitempty"`
+	Status    int             `json:"status"`
+	RequestID string          `json:"requestId"`
+}
+
+// EventResponseWrapper используется для документации swagger
+type EventResponseWrapper struct {
+	Data      dto.EventData `json:"data"`
+	Errors    []string      `json:"errors,omitempty"`
+	Status    int           `json:"status"`
+	RequestID string        `json:"requestId"`
+}
+
 // @Summary Проверка состояния здоровья
 // @Description Проверяет состояние сервиса
 // @Tags health
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]string
-// @Failure 503 {object} map[string]string
+// @Success 200 {object} Response
+// @Failure 503 {object} ErrorResponseWrapper
 // @Router /health [get].
 func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
@@ -118,27 +142,18 @@ func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	s.writeJSONResponse(w, r, response)
 }
 
-// eventRequest представляет запрос на создание/обновление события.
-type eventRequest struct {
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	StartTime   time.Time `json:"startTime"`
-	EndTime     time.Time `json:"endTime"`
-	UserID      uuid.UUID `json:"userId"`
-}
-
 // @Summary Создать событие
 // @Description Создает новое событие
 // @Tags events
 // @Accept json
 // @Produce json
-// @Param event body eventRequest true "Запрос на создание события"
+// @Param event body dto.EventData true "Запрос на создание события"
 // @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /events [post].
 func (s *Server) createEventHandler(w http.ResponseWriter, r *http.Request) {
-	var eventRequest eventRequest
+	var eventRequest dto.EventData
 
 	if err := json.NewDecoder(r.Body).Decode(&eventRequest); err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
@@ -146,14 +161,7 @@ func (s *Server) createEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := s.eventService.CreateEvent(
-		r.Context(),
-		eventRequest.Title,
-		eventRequest.Description,
-		eventRequest.StartTime,
-		eventRequest.EndTime,
-		eventRequest.UserID,
-	)
+	id, err := s.eventService.CreateEvent(r.Context(), eventRequest)
 	if err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
@@ -170,13 +178,13 @@ func (s *Server) createEventHandler(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID события"
-// @Param event body eventRequest true "Запрос на обновление события"
+// @Param event body dto.EventData true "Запрос на обновление события"
 // @Success 204 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /events/{id} [put].
 func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
-	var eventRequest eventRequest
+	var eventRequest dto.EventData
 
 	if err := json.NewDecoder(r.Body).Decode(&eventRequest); err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusBadRequest)
@@ -192,15 +200,7 @@ func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.eventService.UpdateEvent(
-		r.Context(),
-		id,
-		eventRequest.Title,
-		eventRequest.Description,
-		eventRequest.StartTime,
-		eventRequest.EndTime,
-		eventRequest.UserID,
-	)
+	err = s.eventService.UpdateEvent(r.Context(), id, eventRequest)
 	if err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
 		s.writeJSONResponse(w, r, response)
@@ -218,8 +218,8 @@ func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path string true "ID события"
 // @Success 204 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /events/{id} [delete].
 func (s *Server) deleteEventHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -247,9 +247,9 @@ func (s *Server) deleteEventHandler(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID события"
-// @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} EventResponseWrapper
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /events/{id} [get].
 func (s *Server) getEventHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -278,9 +278,9 @@ func (s *Server) getEventHandler(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param startTime query string true "Время начала"
 // @Param endTime query string true "Время окончания"
-// @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} EventListResponseWrapper
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /events [get].
 func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
 	startTime := r.URL.Query().Get("startTime")
@@ -317,9 +317,9 @@ func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param date query string true "Дата" format(date) example(2024-07-24)
-// @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} EventListResponseWrapper
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /events/day [get]
 func (s *Server) listEventsForDateHandler(w http.ResponseWriter, r *http.Request) {
 	date := r.URL.Query().Get("date")
@@ -350,9 +350,9 @@ func (s *Server) listEventsForDateHandler(w http.ResponseWriter, r *http.Request
 // @Accept json
 // @Produce json
 // @Param date query string true "Дата начала недели" format(date) example(2024-07-22)
-// @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} EventListResponseWrapper
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /events/week [get]
 func (s *Server) listEventsForWeekHandler(w http.ResponseWriter, r *http.Request) {
 	date := r.URL.Query().Get("date")
@@ -383,9 +383,9 @@ func (s *Server) listEventsForWeekHandler(w http.ResponseWriter, r *http.Request
 // @Accept json
 // @Produce json
 // @Param date query string true "Дата начала месяца" format(date) example(2024-07-01)
-// @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} EventListResponseWrapper
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /events/month [get]
 func (s *Server) listEventsForMonthHandler(w http.ResponseWriter, r *http.Request) {
 	date := r.URL.Query().Get("date")
@@ -444,8 +444,8 @@ type notificationRequest struct {
 // @Produce json
 // @Param notification body notificationRequest true "Запрос на создание уведомления"
 // @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications [post]
 func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	var notificationRequest notificationRequest
@@ -482,8 +482,8 @@ func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Param id path string true "ID уведомления"
 // @Param notification body notificationRequest true "Запрос на обновление уведомления"
 // @Success 204 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications/{id} [put]
 func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	var notificationRequest notificationRequest
@@ -529,8 +529,8 @@ func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Produce json
 // @Param id path string true "ID уведомления"
 // @Success 204 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications/{id} [delete]
 func (s *Server) deleteNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -560,8 +560,8 @@ func (s *Server) deleteNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Produce json
 // @Param id path string true "ID уведомления"
 // @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications/{id} [get]
 func (s *Server) getNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -592,8 +592,8 @@ func (s *Server) getNotificationHandler(w http.ResponseWriter, r *http.Request) 
 // @Param start_time query string true "Время начала"
 // @Param end_time query string true "Время окончания"
 // @Success 200 {object} Response
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Failure 400 {object} ErrorResponseWrapper
+// @Failure 500 {object} ErrorResponseWrapper
 // @Router /notifications [get]
 func (s *Server) listNotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	startTime := r.URL.Query().Get("start_time")

@@ -6,110 +6,85 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
-// MockEventRepository is a mock implementation of the EventRepository interface.
-type MockEventRepository struct {
-	mock.Mock
-}
-
-func (m *MockEventRepository) CreateEvent(ctx context.Context, event storage.Event) (uuid.UUID, error) {
-	args := m.Called(ctx, event)
-	return args.Get(0).(uuid.UUID), args.Error(1)
-}
-
-func (m *MockEventRepository) UpdateEvent(ctx context.Context, id uuid.UUID, event storage.Event) error {
-	args := m.Called(ctx, id, event)
-	return args.Error(0)
-}
-
-func (m *MockEventRepository) DeleteEvent(ctx context.Context, id uuid.UUID) error {
-	args := m.Called(ctx, id)
-	return args.Error(0)
-}
-
-func (m *MockEventRepository) GetEvent(ctx context.Context, id uuid.UUID) (storage.Event, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(storage.Event), args.Error(1)
-}
-
-func (m *MockEventRepository) ListEvents(ctx context.Context, start, end time.Time) ([]storage.Event, error) {
-	args := m.Called(ctx, start, end)
-	return args.Get(0).([]storage.Event), args.Error(1)
-}
-
-func (m *MockEventRepository) ListUpcomingEvents(ctx context.Context, start, end time.Time) ([]storage.Event, error) {
-	args := m.Called(ctx, start, end)
-	return args.Get(0).([]storage.Event), args.Error(1)
-}
-
 func TestEventService(t *testing.T) {
-	mockRepo := new(MockEventRepository)
-	service := NewEventService(mockRepo)
-
 	ctx := context.Background()
-	eventID := uuid.New()
-	userID := uuid.New()
-	startTime := time.Now()
-	endTime := startTime.Add(2 * time.Hour)
-	event := storage.Event{
-		ID:          eventID,
+	store := memorystorage.New()
+	service := NewEventService(store.EventRepository())
+
+	event := dto.EventData{
 		Title:       "Test Event",
-		Description: "Test Description",
-		StartTime:   startTime,
-		EndTime:     endTime,
-		UserID:      userID,
+		Description: "This is a test event",
+		StartTime:   time.Now(),
+		EndTime:     time.Now().Add(1 * time.Hour),
+		UserID:      uuid.New(),
 	}
 
 	t.Run("CreateEvent", func(t *testing.T) {
-		mockRepo.On("CreateEvent", ctx, mock.AnythingOfType("storage.Event")).Return(eventID, nil).Once()
-
-		id, err := service.CreateEvent(ctx, event.Title, event.Description, startTime, endTime, userID)
-		assert.NoError(t, err)
-		assert.Equal(t, eventID, id)
-
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("UpdateEvent", func(t *testing.T) {
-		mockRepo.On("UpdateEvent", ctx, eventID, mock.AnythingOfType("storage.Event")).Return(nil).Once()
-
-		err := service.UpdateEvent(ctx, eventID, event.Title, event.Description, startTime, endTime, userID)
-		assert.NoError(t, err)
-
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("DeleteEvent", func(t *testing.T) {
-		mockRepo.On("DeleteEvent", ctx, eventID).Return(nil).Once()
-
-		err := service.DeleteEvent(ctx, eventID)
-		assert.NoError(t, err)
-
-		mockRepo.AssertExpectations(t)
+		id, err := service.CreateEvent(ctx, event)
+		require.NoError(t, err)
+		assert.NotEqual(t, uuid.Nil, id)
 	})
 
 	t.Run("GetEvent", func(t *testing.T) {
-		mockRepo.On("GetEvent", ctx, eventID).Return(event, nil).Once()
+		id, err := service.CreateEvent(ctx, event)
+		require.NoError(t, err)
 
-		result, err := service.GetEvent(ctx, eventID)
-		assert.NoError(t, err)
-		assert.Equal(t, event, result)
+		retrievedEvent, err := service.GetEvent(ctx, id)
+		require.NoError(t, err)
+		assert.Equal(t, event.Title, retrievedEvent.Title)
+		assert.Equal(t, event.Description, retrievedEvent.Description)
+		assert.WithinDuration(t, event.StartTime, retrievedEvent.StartTime, time.Second)
+		assert.WithinDuration(t, event.EndTime, retrievedEvent.EndTime, time.Second)
+		assert.Equal(t, event.UserID, retrievedEvent.UserID)
+	})
 
-		mockRepo.AssertExpectations(t)
+	t.Run("UpdateEvent", func(t *testing.T) {
+		id, err := service.CreateEvent(ctx, event)
+		require.NoError(t, err)
+
+		updatedEvent := dto.EventData{
+			Title:       "Updated Event",
+			Description: "This is an updated event",
+			StartTime:   event.StartTime.Add(1 * time.Hour),
+			EndTime:     event.EndTime.Add(1 * time.Hour),
+			UserID:      event.UserID,
+		}
+
+		err = service.UpdateEvent(ctx, id, updatedEvent)
+		require.NoError(t, err)
+
+		retrievedEvent, err := service.GetEvent(ctx, id)
+		require.NoError(t, err)
+		assert.Equal(t, updatedEvent.Title, retrievedEvent.Title)
+		assert.Equal(t, updatedEvent.Description, retrievedEvent.Description)
+		assert.WithinDuration(t, updatedEvent.StartTime, retrievedEvent.StartTime, time.Second)
+		assert.WithinDuration(t, updatedEvent.EndTime, retrievedEvent.EndTime, time.Second)
+		assert.Equal(t, updatedEvent.UserID, retrievedEvent.UserID)
+	})
+
+	t.Run("DeleteEvent", func(t *testing.T) {
+		id, err := service.CreateEvent(ctx, event)
+		require.NoError(t, err)
+
+		err = service.DeleteEvent(ctx, id)
+		require.NoError(t, err)
+
+		_, err = service.GetEvent(ctx, id)
+		assert.Error(t, err)
 	})
 
 	t.Run("ListEvents", func(t *testing.T) {
-		events := []storage.Event{event}
-		mockRepo.On("ListEvents", ctx, startTime, endTime).Return(events, nil).Once()
+		start := time.Now()
+		end := start.Add(24 * time.Hour)
 
-		result, err := service.ListEvents(ctx, startTime, endTime)
-		assert.NoError(t, err)
-		assert.Equal(t, events, result)
-
-		mockRepo.AssertExpectations(t)
+		events, err := service.ListEvents(ctx, start, end)
+		require.NoError(t, err)
+		assert.NotEmpty(t, events)
 	})
 }

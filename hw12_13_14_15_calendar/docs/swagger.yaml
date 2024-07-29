@@ -1,5 +1,57 @@
 basePath: /
 definitions:
+  dto.EventData:
+    properties:
+      description:
+        type: string
+      endTime:
+        type: string
+      startTime:
+        type: string
+      title:
+        type: string
+      userID:
+        type: string
+    type: object
+  internalhttp.ErrorResponseWrapper:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+  internalhttp.EventListResponseWrapper:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.EventData'
+        type: array
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+  internalhttp.EventResponseWrapper:
+    properties:
+      data:
+        $ref: '#/definitions/dto.EventData'
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
   internalhttp.Response:
     properties:
       data: {}
@@ -11,19 +63,6 @@ definitions:
         type: string
       status:
         type: integer
-    type: object
-  internalhttp.eventRequest:
-    properties:
-      description:
-        type: string
-      endTime:
-        type: string
-      startTime:
-        type: string
-      title:
-        type: string
-      userId:
-        type: string
     type: object
   internalhttp.notificationRequest:
     properties:
@@ -65,15 +104,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.EventListResponseWrapper'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список событий
       tags:
       - events
@@ -87,7 +126,7 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/internalhttp.eventRequest'
+          $ref: '#/definitions/dto.EventData'
       produces:
       - application/json
       responses:
@@ -98,11 +137,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Создать событие
       tags:
       - events
@@ -127,11 +166,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Удалить событие
       tags:
       - events
@@ -151,15 +190,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.EventResponseWrapper'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Получить событие
       tags:
       - events
@@ -178,7 +217,7 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/internalhttp.eventRequest'
+          $ref: '#/definitions/dto.EventData'
       produces:
       - application/json
       responses:
@@ -189,11 +228,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Обновить событие
       tags:
       - events
@@ -203,7 +242,7 @@ paths:
       - application/json
       description: Получает список событий на указанный день
       parameters:
-      - description: Дата начала
+      - description: Дата
         example: "2024-07-24"
         format: date
         in: query
@@ -216,15 +255,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.EventListResponseWrapper'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список событий на указанный день
       tags:
       - events
@@ -247,15 +286,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.EventListResponseWrapper'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список событий на указанный месяц
       tags:
       - events
@@ -278,15 +317,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.EventListResponseWrapper'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internalhttp.Response'
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список событий на указанную неделю
       tags:
       - events
@@ -301,15 +340,11 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/internalhttp.Response'
         "503":
           description: Service Unavailable
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Проверка состояния здоровья
       tags:
       - health

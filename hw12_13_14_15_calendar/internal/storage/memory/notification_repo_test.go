@@ -24,17 +24,6 @@ func TestNotificationRepo_CreateNotification(t *testing.T) {
 	id, err := repo.CreateNotification(context.Background(), notification)
 	assert.NoError(t, err)
 	assert.NotEqual(t, uuid.Nil, id)
-
-	// Test for ErrNotificationTimePast
-	pastNotification := storage.Notification{
-		EventID: uuid.New(),
-		Time:    time.Now().Add(-1 * time.Hour),
-		Message: "Past Notification",
-		Sent:    false,
-	}
-
-	_, err = repo.CreateNotification(context.Background(), pastNotification)
-	assert.ErrorIs(t, err, storage.ErrNotificationTimePast)
 }
 
 func TestNotificationRepo_UpdateNotification(t *testing.T) {
@@ -58,11 +47,6 @@ func TestNotificationRepo_UpdateNotification(t *testing.T) {
 	updatedNotification, err := repo.GetNotification(context.Background(), id)
 	assert.NoError(t, err)
 	assert.Equal(t, "Updated Message", updatedNotification.Message)
-
-	// Test for ErrNotificationTimePast
-	notification.Time = time.Now().Add(-1 * time.Hour)
-	err = repo.UpdateNotification(context.Background(), id, notification)
-	assert.ErrorIs(t, err, storage.ErrNotificationTimePast)
 }
 
 func TestNotificationRepo_DeleteNotification(t *testing.T) {

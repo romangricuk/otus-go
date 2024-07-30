@@ -136,6 +136,60 @@ func (s *Server) ListEvents(ctx context.Context, req *api.ListEventsRequest) (*a
 	return &api.ListEventsResponse{Events: apiEvents}, nil
 }
 
+func (s *Server) ListEventsForDate(
+	ctx context.Context,
+	req *api.ListEventsForDateRequest,
+) (*api.ListEventsResponse, error) {
+	start := req.GetDate().AsTime()
+	end := start.AddDate(0, 0, 1) // Добавляем 1 день
+
+	events, err := s.eventService.ListEvents(ctx, start, end)
+	if err != nil {
+		return nil, err
+	}
+	apiEvents := make([]*api.Event, len(events))
+	for i, event := range events {
+		apiEvents[i] = dto.ToAPIEvent(event)
+	}
+	return &api.ListEventsResponse{Events: apiEvents}, nil
+}
+
+func (s *Server) ListEventsForWeek(
+	ctx context.Context,
+	req *api.ListEventsForWeekRequest,
+) (*api.ListEventsResponse, error) {
+	start := req.GetDate().AsTime()
+	end := start.AddDate(0, 0, 7) // Добавляем 7 дней
+
+	events, err := s.eventService.ListEvents(ctx, start, end)
+	if err != nil {
+		return nil, err
+	}
+	apiEvents := make([]*api.Event, len(events))
+	for i, event := range events {
+		apiEvents[i] = dto.ToAPIEvent(event)
+	}
+	return &api.ListEventsResponse{Events: apiEvents}, nil
+}
+
+func (s *Server) ListEventsForMonth(
+	ctx context.Context,
+	req *api.ListEventsForMonthRequest,
+) (*api.ListEventsResponse, error) {
+	start := req.GetDate().AsTime()
+	end := start.AddDate(0, 1, 0) // Добавляем 1 месяц
+
+	events, err := s.eventService.ListEvents(ctx, start, end)
+	if err != nil {
+		return nil, err
+	}
+	apiEvents := make([]*api.Event, len(events))
+	for i, event := range events {
+		apiEvents[i] = dto.ToAPIEvent(event)
+	}
+	return &api.ListEventsResponse{Events: apiEvents}, nil
+}
+
 func (s *Server) CreateNotification(
 	ctx context.Context,
 	req *api.CreateNotificationRequest,

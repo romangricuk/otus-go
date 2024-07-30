@@ -31,6 +31,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "example": "2024-07-01T00:00:00Z",
                         "description": "Время начала",
                         "name": "startTime",
                         "in": "query",
@@ -38,6 +39,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "example": "2024-07-31T23:59:59Z",
                         "description": "Время окончания",
                         "name": "endTime",
                         "in": "query",
@@ -264,6 +266,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
                         "description": "ID события",
                         "name": "id",
                         "in": "path",
@@ -357,6 +360,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
                         "description": "ID события",
                         "name": "id",
                         "in": "path",
@@ -430,6 +434,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "example": "2024-07-01T00:00:00Z",
                         "description": "Время начала",
                         "name": "start_time",
                         "in": "query",
@@ -437,6 +442,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "example": "2024-07-31T23:59:59Z",
                         "description": "Время окончания",
                         "name": "end_time",
                         "in": "query",
@@ -525,6 +531,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
                         "description": "ID уведомления",
                         "name": "id",
                         "in": "path",
@@ -618,6 +625,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
                         "description": "ID уведомления",
                         "name": "id",
                         "in": "path",
@@ -652,22 +660,28 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Event description"
                 },
                 "endTime": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-07-02T00:00:00Z"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "startTime": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-07-02T00:00:00Z"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Event title"
                 },
                 "userId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 }
             }
         },
@@ -675,22 +689,28 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "eventId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Notification message"
                 },
                 "sent": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "time": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-07-02T00:00:00Z"
                 },
                 "userId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 }
             }
         },

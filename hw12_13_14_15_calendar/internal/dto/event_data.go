@@ -10,12 +10,12 @@ import (
 )
 
 type EventData struct {
-	ID          uuid.UUID `json:"id,omitempty"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	StartTime   time.Time `json:"startTime"`
-	EndTime     time.Time `json:"endTime"`
-	UserID      uuid.UUID `json:"userId"`
+	ID          uuid.UUID `json:"id,omitempty" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Title       string    `json:"title" example:"Event title"`
+	Description string    `json:"description" example:"Event description"`
+	StartTime   time.Time `json:"startTime" example:"2024-07-02T00:00:00Z"`
+	EndTime     time.Time `json:"endTime" example:"2024-07-02T00:00:00Z"`
+	UserID      uuid.UUID `json:"userId" example:"123e4567-e89b-12d3-a456-426614174000"`
 }
 
 func ToStorageEvent(data EventData) storage.Event {

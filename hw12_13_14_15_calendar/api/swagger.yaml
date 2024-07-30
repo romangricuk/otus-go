@@ -3,31 +3,43 @@ definitions:
   dto.EventData:
     properties:
       description:
+        example: Event description
         type: string
       endTime:
+        example: "2024-07-02T00:00:00Z"
         type: string
       id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       startTime:
+        example: "2024-07-02T00:00:00Z"
         type: string
       title:
+        example: Event title
         type: string
       userId:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
     type: object
   dto.NotificationData:
     properties:
       eventId:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       message:
+        example: Notification message
         type: string
       sent:
+        example: false
         type: boolean
       time:
+        example: "2024-07-02T00:00:00Z"
         type: string
       userId:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
     type: object
   internalhttp.ErrorResponseWrapper:
@@ -123,11 +135,13 @@ paths:
       description: Получает список событий между указанными датами
       parameters:
       - description: Время начала
+        example: "2024-07-01T00:00:00Z"
         in: query
         name: startTime
         required: true
         type: string
       - description: Время окончания
+        example: "2024-07-31T23:59:59Z"
         in: query
         name: endTime
         required: true
@@ -186,6 +200,7 @@ paths:
       description: Удаляет существующее событие
       parameters:
       - description: ID события
+        example: 123e4567-e89b-12d3-a456-426614174000
         in: path
         name: id
         required: true
@@ -214,6 +229,7 @@ paths:
       description: Получает событие по ID
       parameters:
       - description: ID события
+        example: 123e4567-e89b-12d3-a456-426614174000
         in: path
         name: id
         required: true
@@ -389,11 +405,13 @@ paths:
       description: Получает список уведомлений между указанными датами
       parameters:
       - description: Время начала
+        example: "2024-07-01T00:00:00Z"
         in: query
         name: start_time
         required: true
         type: string
       - description: Время окончания
+        example: "2024-07-31T23:59:59Z"
         in: query
         name: end_time
         required: true
@@ -452,6 +470,7 @@ paths:
       description: Удаляет существующее уведомление
       parameters:
       - description: ID уведомления
+        example: 123e4567-e89b-12d3-a456-426614174000
         in: path
         name: id
         required: true
@@ -480,6 +499,7 @@ paths:
       description: Получает уведомление по ID
       parameters:
       - description: ID уведомления
+        example: 123e4567-e89b-12d3-a456-426614174000
         in: path
         name: id
         required: true

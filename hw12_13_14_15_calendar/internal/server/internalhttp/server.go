@@ -257,7 +257,7 @@ func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
 // @Tags events
 // @Accept json
 // @Produce json
-// @Param id path string true "ID события"
+// @Param id path string true "ID события" example(123e4567-e89b-12d3-a456-426614174000)
 // @Success 204 {object} Response
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
@@ -287,7 +287,7 @@ func (s *Server) deleteEventHandler(w http.ResponseWriter, r *http.Request) {
 // @Tags events
 // @Accept json
 // @Produce json
-// @Param id path string true "ID события"
+// @Param id path string true "ID события" example(123e4567-e89b-12d3-a456-426614174000)
 // @Success 200 {object} EventResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
@@ -317,8 +317,8 @@ func (s *Server) getEventHandler(w http.ResponseWriter, r *http.Request) {
 // @Tags events
 // @Accept json
 // @Produce json
-// @Param startTime query string true "Время начала"
-// @Param endTime query string true "Время окончания"
+// @Param startTime query string true "Время начала" example(2024-07-01T00:00:00Z)
+// @Param endTime query string true "Время окончания" example(2024-07-31T23:59:59Z)
 // @Success 200 {object} EventListResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
@@ -541,7 +541,7 @@ func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Tags notifications
 // @Accept json
 // @Produce json
-// @Param id path string true "ID уведомления"
+// @Param id path string true "ID уведомления" example(123e4567-e89b-12d3-a456-426614174000)
 // @Success 204 {object} Response
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
@@ -572,7 +572,7 @@ func (s *Server) deleteNotificationHandler(w http.ResponseWriter, r *http.Reques
 // @Tags notifications
 // @Accept json
 // @Produce json
-// @Param id path string true "ID уведомления"
+// @Param id path string true "ID уведомления" example(123e4567-e89b-12d3-a456-426614174000)
 // @Success 200 {object} NotificationResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper
@@ -603,8 +603,8 @@ func (s *Server) getNotificationHandler(w http.ResponseWriter, r *http.Request) 
 // @Tags notifications
 // @Accept json
 // @Produce json
-// @Param start_time query string true "Время начала"
-// @Param end_time query string true "Время окончания"
+// @Param start_time query string true "Время начала" example(2024-07-01T00:00:00Z)
+// @Param end_time query string true "Время окончания" example(2024-07-31T23:59:59Z)
 // @Success 200 {object} NotificationListResponseWrapper
 // @Failure 400 {object} ErrorResponseWrapper
 // @Failure 500 {object} ErrorResponseWrapper

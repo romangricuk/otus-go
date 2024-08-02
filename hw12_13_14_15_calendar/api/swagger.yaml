@@ -1,0 +1,559 @@
+basePath: /
+definitions:
+  dto.EventData:
+    properties:
+      description:
+        example: Event description
+        type: string
+      endTime:
+        example: "2024-07-02T00:00:00Z"
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      startTime:
+        example: "2024-07-02T00:00:00Z"
+        type: string
+      title:
+        example: Event title
+        type: string
+      userId:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    type: object
+  dto.NotificationData:
+    properties:
+      eventId:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      message:
+        example: Notification message
+        type: string
+      sent:
+        example: false
+        type: boolean
+      time:
+        example: "2024-07-02T00:00:00Z"
+        type: string
+      userId:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    type: object
+  internalhttp.ErrorResponseWrapper:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+  internalhttp.EventListResponseWrapper:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.EventData'
+        type: array
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+  internalhttp.EventResponseWrapper:
+    properties:
+      data:
+        $ref: '#/definitions/dto.EventData'
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+  internalhttp.NotificationListResponseWrapper:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.NotificationData'
+        type: array
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+  internalhttp.NotificationResponseWrapper:
+    properties:
+      data:
+        $ref: '#/definitions/dto.NotificationData'
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+  internalhttp.Response:
+    properties:
+      data: {}
+      errors:
+        items:
+          type: string
+        type: array
+      requestId:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Это простой API для управления событиями календаря.
+  title: API Календаря
+  version: "1.0"
+paths:
+  /events:
+    get:
+      consumes:
+      - application/json
+      description: Получает список событий между указанными датами
+      parameters:
+      - description: Время начала
+        example: "2024-07-01T00:00:00Z"
+        in: query
+        name: startTime
+        required: true
+        type: string
+      - description: Время окончания
+        example: "2024-07-31T23:59:59Z"
+        in: query
+        name: endTime
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.EventListResponseWrapper'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Список событий
+      tags:
+      - events
+    post:
+      consumes:
+      - application/json
+      description: Создает новое событие
+      parameters:
+      - description: Запрос на создание события
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EventData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Создать событие
+      tags:
+      - events
+  /events/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет существующее событие
+      parameters:
+      - description: ID события
+        example: 123e4567-e89b-12d3-a456-426614174000
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Удалить событие
+      tags:
+      - events
+    get:
+      consumes:
+      - application/json
+      description: Получает событие по ID
+      parameters:
+      - description: ID события
+        example: 123e4567-e89b-12d3-a456-426614174000
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.EventResponseWrapper'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Получить событие
+      tags:
+      - events
+    put:
+      consumes:
+      - application/json
+      description: Обновляет существующее событие
+      parameters:
+      - description: ID события
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Запрос на обновление события
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EventData'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Обновить событие
+      tags:
+      - events
+  /events/day:
+    get:
+      consumes:
+      - application/json
+      description: Получает список событий на указанный день
+      parameters:
+      - description: Дата
+        example: "2024-07-24"
+        format: date
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.EventListResponseWrapper'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Список событий на указанный день
+      tags:
+      - events
+  /events/month:
+    get:
+      consumes:
+      - application/json
+      description: Получает список событий на указанный месяц
+      parameters:
+      - description: Дата начала месяца
+        example: "2024-07-01"
+        format: date
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.EventListResponseWrapper'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Список событий на указанный месяц
+      tags:
+      - events
+  /events/week:
+    get:
+      consumes:
+      - application/json
+      description: Получает список событий на указанную неделю
+      parameters:
+      - description: Дата начала недели
+        example: "2024-07-22"
+        format: date
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.EventListResponseWrapper'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Список событий на указанную неделю
+      tags:
+      - events
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Проверяет состояние сервиса
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Проверка состояния здоровья
+      tags:
+      - health
+  /notifications:
+    get:
+      consumes:
+      - application/json
+      description: Получает список уведомлений между указанными датами
+      parameters:
+      - description: Время начала
+        example: "2024-07-01T00:00:00Z"
+        in: query
+        name: start_time
+        required: true
+        type: string
+      - description: Время окончания
+        example: "2024-07-31T23:59:59Z"
+        in: query
+        name: end_time
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.NotificationListResponseWrapper'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Список уведомлений
+      tags:
+      - notifications
+    post:
+      consumes:
+      - application/json
+      description: Создает новое уведомление
+      parameters:
+      - description: Запрос на создание уведомления
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NotificationData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Создать уведомление
+      tags:
+      - notifications
+  /notifications/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет существующее уведомление
+      parameters:
+      - description: ID уведомления
+        example: 123e4567-e89b-12d3-a456-426614174000
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Удалить уведомление
+      tags:
+      - notifications
+    get:
+      consumes:
+      - application/json
+      description: Получает уведомление по ID
+      parameters:
+      - description: ID уведомления
+        example: 123e4567-e89b-12d3-a456-426614174000
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internalhttp.NotificationResponseWrapper'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Получить уведомление
+      tags:
+      - notifications
+    put:
+      consumes:
+      - application/json
+      description: Обновляет существующее уведомление
+      parameters:
+      - description: ID уведомления
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Запрос на обновление уведомления
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NotificationData'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/internalhttp.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
+      summary: Обновить уведомление
+      tags:
+      - notifications
+swagger: "2.0"

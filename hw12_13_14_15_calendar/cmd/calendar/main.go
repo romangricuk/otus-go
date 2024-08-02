@@ -67,8 +67,6 @@ func runApplication(cfg *config.Config) {
 	defer cancel()
 
 	go func() {
-		fmt.Println("gorutine started")
-
 		<-ctx.Done()
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)

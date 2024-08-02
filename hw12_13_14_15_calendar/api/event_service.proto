@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package api;
+
+import "google/protobuf/timestamp.proto";
+option go_package = "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api;api";
+
+service EventService {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse);
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+  rpc ListEventsForDate(ListEventsForDateRequest) returns (ListEventsResponse);
+  rpc ListEventsForWeek(ListEventsForWeekRequest) returns (ListEventsResponse);
+  rpc ListEventsForMonth(ListEventsForMonthRequest) returns (ListEventsResponse);
+}
+
+message CreateEventRequest {
+  string title = 1;
+  string description = 2;
+  google.protobuf.Timestamp start_time = 3;
+  google.protobuf.Timestamp end_time = 4;
+  string user_id = 5;
+}
+
+message CreateEventResponse {
+  string id = 1;
+}
+
+message UpdateEventRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  google.protobuf.Timestamp start_time = 4;
+  google.protobuf.Timestamp end_time = 5;
+  string user_id = 6;
+}
+
+message UpdateEventResponse {}
+
+message DeleteEventRequest {
+  string id = 1;
+}
+
+message DeleteEventResponse {}
+
+message GetEventRequest {
+  string id = 1;
+}
+
+message GetEventResponse {
+  Event event = 1;
+}
+
+message ListEventsRequest {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+}
+
+message ListEventsForDateRequest {
+  google.protobuf.Timestamp date = 1;
+}
+
+message ListEventsForWeekRequest {
+  google.protobuf.Timestamp date = 1;
+}
+
+message ListEventsForMonthRequest {
+  google.protobuf.Timestamp date = 1;
+}
+
+message ListEventsResponse {
+  repeated Event events = 1;
+}
+
+message Event {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  google.protobuf.Timestamp start_time = 4;
+  google.protobuf.Timestamp end_time = 5;
+  string user_id = 6;
+}

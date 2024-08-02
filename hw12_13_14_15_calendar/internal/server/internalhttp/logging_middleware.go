@@ -48,7 +48,7 @@ func LoggingMiddleware(logger logger.Logger) func(http.Handler) http.Handler {
 			statusCode := rw.statusCode
 			size := rw.size
 			userAgent := r.UserAgent()
-			requestID, ok := r.Context().Value("requestID").(string)
+			requestID, ok := r.Context().Value(requestIDKey).(string)
 			if !ok {
 				requestID = "unknown"
 			}

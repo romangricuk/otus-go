@@ -13,6 +13,7 @@ type Notification struct {
 	Time    time.Time `json:"time"`
 	Message string    `json:"message"`
 	Sent    bool      `json:"sent"`
+	UserID  uuid.UUID `json:"userId"`
 }
 
 type NotificationRepository interface {

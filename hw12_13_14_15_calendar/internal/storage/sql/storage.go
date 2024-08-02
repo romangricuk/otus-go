@@ -8,6 +8,7 @@ import (
 	// "github.com/lib/pq" подключение драйвера postgres.
 	_ "github.com/lib/pq"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -15,9 +16,10 @@ type SQLStorage struct {
 	db               *sql.DB
 	eventRepo        *EventRepo
 	notificationRepo *NotificationRepo
+	logger           logger.Logger
 }
 
-func New(cfg config.DatabaseConfig) (*SQLStorage, error) {
+func New(cfg config.DatabaseConfig, logger logger.Logger) (*SQLStorage, error) {
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		cfg.User,
@@ -33,8 +35,9 @@ func New(cfg config.DatabaseConfig) (*SQLStorage, error) {
 
 	return &SQLStorage{
 		db:               db,
-		eventRepo:        NewEventRepo(db),
-		notificationRepo: NewNotificationRepo(db),
+		eventRepo:        NewEventRepo(db, logger),
+		notificationRepo: NewNotificationRepo(db, logger),
+		logger:           logger,
 	}, nil
 }
 

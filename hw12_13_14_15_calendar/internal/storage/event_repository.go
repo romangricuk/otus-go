@@ -8,12 +8,12 @@ import (
 )
 
 type Event struct {
-	ID          uuid.UUID `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	StartTime   time.Time `json:"startTime"`
-	EndTime     time.Time `json:"endTime"`
-	UserID      uuid.UUID `json:"userId"`
+	ID          uuid.UUID
+	Title       string
+	Description string
+	StartTime   time.Time
+	EndTime     time.Time
+	UserID      uuid.UUID
 }
 
 type EventRepository interface {

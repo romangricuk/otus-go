@@ -7,6 +7,8 @@ import (
 )
 
 type Logger interface {
+	Debug(args ...interface{})
+	Debugf(template string, args ...interface{})
 	Info(args ...interface{})
 	Infof(template string, args ...interface{})
 	Error(args ...interface{})
@@ -30,6 +32,8 @@ func New(cfg config.LoggerConfig) (Logger, error) {
 		zapLevel = zap.WarnLevel
 	case "error":
 		zapLevel = zap.ErrorLevel
+	case "fatal":
+		zapLevel = zap.FatalLevel
 	default:
 		zapLevel = zap.InfoLevel
 	}

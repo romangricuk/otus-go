@@ -8,12 +8,17 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	Logger   LoggerConfig
+	HTTPServer HTTPServerConfig
+	GRPCServer GRPCServerConfig
+	Database   DatabaseConfig
+	Logger     LoggerConfig
 }
 
-type ServerConfig struct {
+type HTTPServerConfig struct {
+	Address string
+}
+
+type GRPCServerConfig struct {
 	Address string
 }
 
@@ -38,6 +43,12 @@ func LoadConfig(configPath string) (*Config, error) {
 
 	// Устанавливаем значения по умолчанию
 	viper.SetDefault("server.address", "0.0.0.0:8080")
+	viper.SetDefault("grpc.address", "0.0.0.0:9090")
+	viper.SetDefault("database.user", "postgres")
+	viper.SetDefault("database.password", "password")
+	viper.SetDefault("database.name", "calendar")
+	viper.SetDefault("database.host", "localhost")
+	viper.SetDefault("database.port", 5432)
 	viper.SetDefault("database.storage", "sql")
 	viper.SetDefault("logger.level", "info")
 	viper.SetDefault("logger.encoding", "json")

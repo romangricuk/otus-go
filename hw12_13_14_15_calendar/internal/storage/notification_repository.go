@@ -22,4 +22,5 @@ type NotificationRepository interface {
 	DeleteNotification(ctx context.Context, id uuid.UUID) error
 	GetNotification(ctx context.Context, id uuid.UUID) (Notification, error)
 	ListNotifications(ctx context.Context, start, end time.Time) ([]Notification, error)
+	DeleteSentNotifications(ctx context.Context) error
 }

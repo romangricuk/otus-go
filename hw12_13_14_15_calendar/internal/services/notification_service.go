@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,6 +16,7 @@ type NotificationService interface {
 	DeleteNotification(ctx context.Context, id uuid.UUID) error
 	GetNotification(ctx context.Context, id uuid.UUID) (dto.NotificationData, error)
 	ListNotifications(ctx context.Context, start, end time.Time) ([]dto.NotificationData, error)
+	DeleteSentNotifications(ctx context.Context) error
 }
 
 type NotificationServiceImpl struct {
@@ -69,4 +71,12 @@ func (s *NotificationServiceImpl) ListNotifications(
 		notifications[i] = dto.FromStorageNotification(storageNotification)
 	}
 	return notifications, nil
+}
+
+func (s *NotificationServiceImpl) DeleteSentNotifications(ctx context.Context) error {
+	err := s.repo.DeleteSentNotifications(ctx)
+	if err != nil {
+		return fmt.Errorf("on delete notifications in storage: %w", err)
+	}
+	return nil
 }

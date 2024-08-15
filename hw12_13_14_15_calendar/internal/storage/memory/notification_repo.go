@@ -68,3 +68,15 @@ func (r *NotificationRepo) ListNotifications(_ context.Context, start, end time.
 	}
 	return notifications, nil
 }
+
+func (r *NotificationRepo) DeleteSentNotifications(_ context.Context) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for id, notification := range r.notifications {
+		if notification.Sent {
+			delete(r.notifications, id)
+		}
+	}
+	return nil
+}

@@ -136,3 +136,12 @@ func (r *NotificationRepo) ListNotifications(
 	}
 	return notifications, nil
 }
+
+func (r *NotificationRepo) DeleteSentNotifications(ctx context.Context) error {
+	query := `DELETE FROM notifications WHERE sent`
+	r.logger.Debugf("DeleteNotification SQL: %s", query)
+
+	_, err := r.db.ExecContext(ctx, query)
+
+	return err
+}

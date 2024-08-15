@@ -12,3 +12,22 @@ level = "debug"
 encoding = "json"
 outputPaths = ["stdout"]
 errorOutputPaths = ["stderr"]
+
+[rabbitmq]
+url = "amqp://guest:guest@rabbitmq:5672/"
+queueName = "calendar_queue"
+
+[sender]
+interval = 10
+
+[email]
+smtpServer = "mailhog"
+smtpPort = 1025
+username = ""
+password = ""
+from = "no-reply@example.com"
+useTLS = false
+insecureSkipVerify = true
+
+[scheduler]
+interval = 10

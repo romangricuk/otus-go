@@ -1,11 +1,37 @@
-BIN := "./bin/calendar"
 DOCKER_IMG="calendar:develop"
+
+# Путь к директории с исходниками
+SRC_DIR := ./cmd
+
+# Путь к выходной директории для бинарников
+BIN_DIR := ./bin
+
+# Бинарные файлы
+BIN_CALENDAR := $(BIN_DIR)/calendar
+BIN_SCHEDULER := $(BIN_DIR)/calendar_scheduler
+BIN_SENDER := $(BIN_DIR)/calendar_sender
+
+# Команды для сборки каждого бинарника
+$(BIN_CALENDAR): $(SRC_DIR)/calendar/main.go
+	@echo "Building calendar..."
+	@go build -o $(BIN_CALENDAR) $(SRC_DIR)/calendar/main.go
+
+$(BIN_SCHEDULER): $(SRC_DIR)/calendar_scheduler/main.go
+	@echo "Building calendar_scheduler..."
+	@go build -o $(BIN_SCHEDULER) $(SRC_DIR)/calendar_scheduler/main.go
+
+$(BIN_SENDER): $(SRC_DIR)/calendar_sender/main.go
+	@echo "Building calendar_sender..."
+	@go build -o $(BIN_SENDER) $(SRC_DIR)/calendar_sender/main.go
+
+
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
-build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+# Обобщенная цель для сборки всех бинарников
+build: $(BIN_CALENDAR) $(BIN_SCHEDULER) $(BIN_SENDER)
+	@echo "All binaries built successfully!"
 
 run: build
 	$(BIN) -config ./configs/config.toml

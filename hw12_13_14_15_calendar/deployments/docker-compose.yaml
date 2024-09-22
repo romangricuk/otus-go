@@ -18,20 +18,21 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
-    build:
-      context: ..
-      dockerfile: build/Dockerfile
-    container_name: calendar_app
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
     environment:
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-    volumes:
-      - ../configs:/etc/calendar/configs
-      - ../migrations:/migrations
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "15672:15672" # Порт для RabbitMQ Management UI
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q check_running && rabbitmq-diagnostics -q check_local_alarms" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
   migrate:
     build:
@@ -53,11 +54,11 @@ services:
     entrypoint: [ "./opt/calendar/calendar-app", "-config", "/etc/calendar/configs/config.toml", "--command=migrate_up", "--migrations=/migrations" ]
     command: [ "echo", "Migrations Complete" ]
 
-  app_run:
+  calendar_app:
     build:
       context: ..
       dockerfile: build/Dockerfile
-    container_name: calendar_app_run
+    container_name: calendar_app
     depends_on:
       db:
         condition: service_healthy
@@ -81,6 +82,58 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  calendar_scheduler:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+    container_name: calendar_scheduler
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+    volumes:
+      - ../configs:/etc/calendar/configs
+    entrypoint: [ "./opt/calendar/calendar-scheduler", "-config", "/etc/calendar/configs/config.toml" ]
+
+  calendar_sender:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+    container_name: calendar_sender
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - EMAIL_SMTP_PORT=${EMAIL_SMTP_PORT}
+      - EMAIL_SMTP_SERVER=${EMAIL_SMTP_SERVER}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+    volumes:
+      - ../configs:/etc/calendar/configs
+    entrypoint: [ "./opt/calendar/calendar-sender", "-config", "/etc/calendar/configs/config.toml" ]
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: mailhog
+    ports:
+      - "${EMAIL_SMTP_PORT}:1025"
+      - "${MAILHOG_WEB_PORT}:8025"
+    networks:
+      - default
 
 volumes:
   db-data:

@@ -1,7 +1,6 @@
 # Собираем в гошке
 FROM golang:1.22 as build
 
-ENV BIN_FILE /opt/calendar/calendar-app
 ENV CODE_DIR /go/src/
 
 WORKDIR ${CODE_DIR}
@@ -13,12 +12,12 @@ RUN go mod download
 
 COPY . ${CODE_DIR}
 
-# Собираем статический бинарник Go (без зависимостей на Си API),
-# иначе он не будет работать в alpine образе.
+# Собираем статические бинарники Go (без зависимостей на Си API),
+# иначе они не будут работать в alpine образе.
 ARG LDFLAGS
-RUN CGO_ENABLED=0 go build \
-        -ldflags "$LDFLAGS" \
-        -o ${BIN_FILE} cmd/calendar/*
+RUN CGO_ENABLED=0 go build -ldflags "$LDFLAGS" -o /opt/calendar/calendar-app cmd/calendar/*
+RUN CGO_ENABLED=0 go build -ldflags "$LDFLAGS" -o /opt/calendar/calendar-sender cmd/calendar_sender/*
+RUN CGO_ENABLED=0 go build -ldflags "$LDFLAGS" -o /opt/calendar/calendar-scheduler cmd/calendar_scheduler/*
 
 # На выходе тонкий образ
 FROM alpine:3.9
@@ -30,9 +29,10 @@ LABEL MAINTAINERS="student@otus.ru"
 # Установка curl для healthcheck
 RUN apk --no-cache add curl
 
-ENV BIN_FILE "/opt/calendar/calendar-app"
-COPY --from=build ${BIN_FILE} ${BIN_FILE}
-
+ENV BIN_DIR "/opt/calendar/"
 ENV CONFIG_FILE /etc/calendar/config.toml
 
-#CMD ${BIN_FILE} -config ${CONFIG_FILE}
+# Копируем все собранные бинарники
+COPY --from=build /opt/calendar/calendar-app ${BIN_DIR}
+COPY --from=build /opt/calendar/calendar-sender ${BIN_DIR}
+COPY --from=build /opt/calendar/calendar-scheduler ${BIN_DIR}

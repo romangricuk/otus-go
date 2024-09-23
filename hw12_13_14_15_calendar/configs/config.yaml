@@ -1,0 +1,40 @@
+httpserver:
+  address: "0.0.0.0:8080"
+
+grpcserver:
+  address: "0.0.0.0:9090"
+
+database:
+  user: "${DB_USER}"
+  password: "${DB_PASSWORD}"
+  name: "${DB_NAME}"
+  host: "${DB_HOST}"
+  port: ${DB_PORT}
+  storage: "sql"
+
+logger:
+  level: "debug"
+  encoding: "json"
+  outputPaths:
+    - "stdout"
+  errorOutputPaths:
+    - "stderr"
+
+rabbitmq:
+  url: "amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}/"
+  queueName: "${RABBITMQ_QUEUE_NAME}"
+
+sender:
+  interval: ${SENDER_INTERVAL}
+
+email:
+  smtpServer: "${EMAIL_SMTP_SERVER}"
+  smtpPort: ${EMAIL_SMTP_PORT}
+  username: "${EMAIL_USERNAME}"
+  password: "${EMAIL_PASSWORD}"
+  from: "${EMAIL_FROM}"
+  useTLS: ${EMAIL_USE_TLS}
+  insecureSkipVerify: ${EMAIL_INSECURE_SKIP_VERIFY}
+
+scheduler:
+  interval: ${SCHEDULER_INTERVAL}

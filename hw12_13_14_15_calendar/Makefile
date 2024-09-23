@@ -24,8 +24,6 @@ $(BIN_SENDER): $(SRC_DIR)/calendar_sender/main.go
 	@echo "Building calendar_sender..."
 	@go build -o $(BIN_SENDER) $(SRC_DIR)/calendar_sender/main.go
 
-
-
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
@@ -34,7 +32,7 @@ build: $(BIN_CALENDAR) $(BIN_SCHEDULER) $(BIN_SENDER)
 	@echo "All binaries built successfully!"
 
 run: build
-	$(BIN) -config ./configs/config.toml
+	$(BIN) -config ./configs/config.yaml
 
 generate:
 	protoc --proto_path=api --go_out=paths=source_relative:./api --go-grpc_out=paths=source_relative:./api api/*.proto
@@ -43,7 +41,7 @@ generate:
 #предварительно требуется установка goplantuml
 #go install github.com/jfeliu007/goplantuml/cmd/goplantuml@latest
 generate-uml-diagram:
-	 goplantuml -recursive  -show-connection-labels ./ > docs/diagram.puml
+	goplantuml -recursive  -show-connection-labels ./ > docs/diagram.puml
 
 #генерация swagger документации
 swagger:
@@ -70,4 +68,10 @@ install-lint-deps:
 lint: install-lint-deps
 	GOROOT=$(shell go env GOROOT) golangci-lint run ./...
 
-.PHONY: build run build-img run-img version test lint
+# запуск приложения в docker
+up:
+	docker compose --env-file ./deployments/.env -f ./deployments/docker-compose.yaml up -d
+
+# остановка запущенного приложения. Так же удаляет все артефакты: containers, networks, volumes, images
+down:
+	docker compose --env-file ./deployments/.env -f ./deployments/docker-compose.yaml down -v --rmi all

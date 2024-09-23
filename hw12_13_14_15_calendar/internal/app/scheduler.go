@@ -106,6 +106,12 @@ func (s *Scheduler) processNotifications(ctx context.Context) {
 		err = s.rabbitClient.SendNotification(notification)
 		if err == nil {
 			s.logger.Infof("Notification %s published", notification.ID)
+
+			notification.Sent = true
+			err = s.notificationService.UpdateNotification(ctx, notification.ID, notification)
+			if err != nil {
+				s.logger.Errorf("on setting notification.Sent flag %s: %v", notification.ID, err)
+			}
 		} else {
 			s.logger.Errorf("Error publishing notification: %v", err)
 		}

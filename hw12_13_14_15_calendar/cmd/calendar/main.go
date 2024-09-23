@@ -23,7 +23,7 @@ func main() {
 	// Парсинг флагов командной строки
 	fmt.Println("app started")
 
-	configPath := flag.String("config", "configs/config.toml", "path to the config file")
+	configPath := flag.String("config", "configs/config.yaml", "path to the config file")
 	migrationsPath := flag.String("migrations", "migrations", "path to the migrations directory")
 	command := flag.String("command", "run", "command to execute: run, migrate_up, migrate_down")
 	flag.Parse()

@@ -16,7 +16,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -244,4 +246,36 @@ func TestCreateNotification(t *testing.T) {
 
 	// Ожидание появления email.
 	require.Eventually(t, findEmail, 1*time.Minute, 5*time.Second, "Email was not sent to MailHog")
+}
+
+// TestWrongDatesEvent проверяет, что создание события с неправильными датами возвращает ошибку.
+func TestWrongDatesEvent(t *testing.T) {
+	ctx := context.Background()
+
+	startTime := time.Now().Add(2 * time.Hour)
+	endTime := time.Now().Add(1 * time.Hour)
+
+	// Создаем событие
+	resp, err := client.CreateEvent(ctx, &api.CreateEventRequest{
+		Title:       "Test Event",
+		Description: "Reminder for your event",
+		StartTime:   timestamppb.New(startTime),
+		EndTime:     timestamppb.New(endTime),
+		UserId:      uuid.New().String(),
+	})
+
+	// Проверяем что, не удалось создать событие.
+	require.Error(t, err, "Event creation should not have been successful")
+	require.Nil(t, resp, "The response to create an event must be empty")
+
+	// Проверяем, что ошибка имеет ожидаемый gRPC код.
+	st, ok := status.FromError(err)
+	require.True(t, ok, "Ошибка должна быть gRPC ошибкой")
+
+	assert.Equal(
+		t,
+		codes.InvalidArgument,
+		st.Code(),
+		"Error code expected: InvalidArgument",
+	)
 }

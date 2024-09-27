@@ -2,7 +2,9 @@ package integrationtests
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"testing"
@@ -38,6 +40,21 @@ func TestMain(m *testing.M) {
 	// Очистка после выполнения тестов
 	conn.Close()
 	os.Exit(code)
+}
+
+// clearMailhog очищает почтовый ящик MailHog перед тестом.
+func clearMailhog(mailhogURL string) error {
+	client := &http.Client{}
+	req, err := http.NewRequest("DELETE", mailhogURL, nil) //nolint:noctx
+	if err != nil {
+		return err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
 }
 
 func getGRPCAddress() string {
@@ -125,10 +142,18 @@ func TestListEvents(t *testing.T) {
 
 // TestCreateNotification Тест на отправку уведомлений.
 func TestCreateNotification(t *testing.T) {
+	// Очистка MailHog перед тестом
+	mailhogURL := "http://mailhog:8025/api/v2/messages"
+
+	err := clearMailhog(mailhogURL)
+
+	require.NoError(t, err, "Не удалось очистить MailHog перед тестом")
+
 	ctx := context.Background()
 
-	startTime := time.Now().Add(1 * time.Hour)
-	endTime := time.Now().Add(2 * time.Hour)
+	startTime := time.Now().Add(-11 * time.Hour)
+	endTime := time.Now().Add(-10 * time.Hour)
+	userID := uuid.New().String()
 
 	// Создание события
 	resp, err := client.CreateEvent(ctx, &api.CreateEventRequest{
@@ -136,7 +161,7 @@ func TestCreateNotification(t *testing.T) {
 		Description: "This is a test event",
 		StartTime:   timestamppb.New(startTime),
 		EndTime:     timestamppb.New(endTime),
-		UserId:      uuid.New().String(),
+		UserId:      userID,
 	})
 
 	require.NoError(t, err)
@@ -149,14 +174,13 @@ func TestCreateNotification(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	//
 	notifClient := api.NewNotificationServiceClient(conn)
-	notifTime := time.Now().Add(30 * time.Minute)
+	notifTime := time.Now().Add(-5 * time.Hour)
 
 	// Создаем уведомление
 	notifyResp, err := notifClient.CreateNotification(ctx, &api.CreateNotificationRequest{
 		EventId: eventID,
-		UserId:  uuid.New().String(),
+		UserId:  userID,
 		Time:    timestamppb.New(notifTime),
 		Message: "Reminder for your event",
 		Sent:    dto.NotificationOnWait,
@@ -170,4 +194,54 @@ func TestCreateNotification(t *testing.T) {
 		_, err := notifClient.DeleteNotification(ctx, &api.DeleteNotificationRequest{Id: notifID})
 		assert.NoError(t, err)
 	})
+
+	// Ожидание обработки уведомления и отправки email.
+	require.Eventually(t, func() bool {
+		getResp, err := notifClient.GetNotification(ctx, &api.GetNotificationRequest{Id: notifID})
+		if err != nil {
+			return false
+		}
+		return getResp.Notification.Sent == dto.NotificationSent
+	}, 1*time.Minute, 5*time.Second, "Notification was not sent within the expected time")
+
+	// Проверка отправки email через MailHog. У него есть api с помощью которого можно получить email.
+	//nolint:tagliatelle
+	var emails struct {
+		Total int `json:"total"`
+		Items []struct {
+			Content struct {
+				Body    string `json:"Body"`
+				Headers struct {
+					Subject []string `json:"Subject"`
+				} `json:"Headers"`
+			} `json:"Content"`
+		} `json:"items"`
+	}
+
+	subject := fmt.Sprintf("Calendar Notification #%s", notifID)
+
+	// Функция для поиска email.
+	findEmail := func() bool {
+		resp, err := http.Get(mailhogURL) //nolint:noctx
+		if err != nil {
+			return false
+		}
+		defer resp.Body.Close()
+
+		err = json.NewDecoder(resp.Body).Decode(&emails)
+		if err != nil {
+			return false
+		}
+
+		for _, email := range emails.Items {
+			if email.Content.Headers.Subject[0] == subject {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	// Ожидание появления email.
+	require.Eventually(t, findEmail, 1*time.Minute, 5*time.Second, "Email was not sent to MailHog")
 }

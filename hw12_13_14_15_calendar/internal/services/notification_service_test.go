@@ -22,7 +22,7 @@ func TestNotificationService(t *testing.T) {
 		UserID:  uuid.New(),
 		Time:    time.Now(),
 		Message: "Test Notification",
-		Sent:    false,
+		Sent:    dto.NotificationOnWait,
 	}
 
 	t.Run("CreateNotification", func(t *testing.T) {
@@ -53,7 +53,7 @@ func TestNotificationService(t *testing.T) {
 			UserID:  notification.UserID,
 			Time:    notification.Time.Add(1 * time.Hour),
 			Message: "Updated Notification",
-			Sent:    true,
+			Sent:    "wait",
 		}
 
 		err = service.UpdateNotification(ctx, id, updatedNotification)

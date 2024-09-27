@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS notifications
     event_id UUID REFERENCES events (id) ON DELETE CASCADE,
     time     TIMESTAMP NOT NULL,
     message  TEXT      NOT NULL,
-    sent     BOOLEAN   NOT NULL DEFAULT FALSE
+    sent     TEXT      NOT NULL DEFAULT 'wait'
 );
 
 CREATE INDEX IF NOT EXISTS idx_notifications_time ON notifications (time);

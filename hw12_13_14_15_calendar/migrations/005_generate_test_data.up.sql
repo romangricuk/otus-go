@@ -58,7 +58,7 @@ $$
                                         user_id,
                                         event_date + notification_time,
                                         notification_message,
-                                        false);
+                                        'wait');
                             END LOOP;
                     END LOOP;
             END LOOP;

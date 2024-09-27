@@ -2,7 +2,7 @@ httpserver:
   address: "0.0.0.0:8080"
 
 grpcserver:
-  address: "0.0.0.0:9090"
+  address: "0.0.0.0:${GRPC_PORT}"
 
 database:
   user: "${DB_USER}"

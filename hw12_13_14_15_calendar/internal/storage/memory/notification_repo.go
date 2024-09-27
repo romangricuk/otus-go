@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"context"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"sync"
 	"time"
 
@@ -74,7 +75,7 @@ func (r *NotificationRepo) DeleteSentNotifications(_ context.Context) error {
 	defer r.mu.Unlock()
 
 	for id, notification := range r.notifications {
-		if notification.Sent {
+		if notification.Sent == dto.NotificationSent {
 			delete(r.notifications, id)
 		}
 	}

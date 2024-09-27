@@ -26,7 +26,7 @@ func (s *SenderService) ProcessNotification(notification dto.NotificationData) e
 
 	// Отправляем email
 	if err := s.sendEmailNotification(notification); err != nil {
-		return err
+		return fmt.Errorf("send email notification failed: %w", err)
 	}
 
 	return nil

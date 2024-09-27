@@ -9,13 +9,19 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+const (
+	NotificationOnWait  = "wait"
+	NotificationOnQueue = "on-queue"
+	NotificationSent    = "sent"
+)
+
 type NotificationData struct {
 	ID      uuid.UUID `json:"id,omitempty" example:"123e4567-e89b-12d3-a456-426614174000"`
 	EventID uuid.UUID `json:"eventId" example:"123e4567-e89b-12d3-a456-426614174000"`
 	UserID  uuid.UUID `json:"userId" example:"123e4567-e89b-12d3-a456-426614174000"`
 	Time    time.Time `json:"time" example:"2024-07-02T00:00:00Z"`
 	Message string    `json:"message" example:"Notification message"`
-	Sent    bool      `json:"sent" example:"false"`
+	Sent    string    `json:"sent" example:"wait, on-queue, sent"`
 }
 
 func ToStorageNotification(data NotificationData) storage.Notification {

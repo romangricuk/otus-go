@@ -68,6 +68,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
+      - GRPC_PORT=${GRPC_PORT}
     ports:
       - "8080:8080"
     volumes:
@@ -115,6 +116,11 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
       - RABBITMQ_USER=${RABBITMQ_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - RABBITMQ_HOST=${RABBITMQ_HOST}
@@ -140,6 +146,22 @@ services:
       - "${MAILHOG_WEB_PORT}:8025"
     networks:
       - default
+
+  integration_tests:
+    profiles:
+      - tests
+    build:
+      context: ..
+      dockerfile: build/Dockerfile.tests
+    depends_on:
+      calendar_app:
+        condition: service_started
+    environment:
+      GRPC_ADDRESS: calendar_app:${GRPC_PORT}
+    volumes:
+      - ../integrationtests:/app/integrationtests
+      - ../api:/app/api
+    command: [ "go", "test", "-v", "./integrationtests/..." ]
 
 volumes:
   db-data:

@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"time"
 
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
@@ -74,7 +75,6 @@ func (s *Scheduler) Start(ctx context.Context) error {
 			return nil
 		case <-ticker.C:
 			s.processNotifications(ctx)
-			s.cleanupOldNotifications(ctx)
 		}
 	}
 }
@@ -107,7 +107,7 @@ func (s *Scheduler) processNotifications(ctx context.Context) {
 		if err == nil {
 			s.logger.Infof("Notification %s published", notification.ID)
 
-			notification.Sent = true
+			notification.Sent = dto.NotificationOnQueue
 			err = s.notificationService.UpdateNotification(ctx, notification.ID, notification)
 			if err != nil {
 				s.logger.Errorf("on setting notification.Sent flag %s: %v", notification.ID, err)

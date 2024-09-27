@@ -3,24 +3,25 @@ package integrationtests
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"os"
 	"strconv"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var client api.EventServiceClient
-var conn *grpc.ClientConn
+var (
+	client api.EventServiceClient
+	conn   *grpc.ClientConn
+)
 
 func TestMain(m *testing.M) {
 	var err error
@@ -46,7 +47,7 @@ func getGRPCAddress() string {
 	return "localhost:9090"
 }
 
-// TestCreateEvent Тест на добавление события
+// TestCreateEvent Тест на добавление события.
 func TestCreateEvent(t *testing.T) {
 	ctx := context.Background()
 	startTime := time.Now().Add(1 * time.Hour)
@@ -72,13 +73,13 @@ func TestCreateEvent(t *testing.T) {
 	})
 }
 
-// TestListEvents Тест на получение списка событий за день/неделю/месяц
+// TestListEvents Тест на получение списка событий за день/неделю/месяц.
 func TestListEvents(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 	userID := uuid.New()
 
-	// Создаем несколько событий
+	// Создаем несколько событий.
 	for i := 0; i < 3; i++ {
 		startTime := now.AddDate(0, 0, i)
 		endTime := startTime.Add(1 * time.Hour)
@@ -122,7 +123,7 @@ func TestListEvents(t *testing.T) {
 	assert.GreaterOrEqual(t, len(monthResp.Events), 3)
 }
 
-// TestCreateNotification Тест на отправку уведомлений
+// TestCreateNotification Тест на отправку уведомлений.
 func TestCreateNotification(t *testing.T) {
 	ctx := context.Background()
 

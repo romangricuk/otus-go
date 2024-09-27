@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"time"
 
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/rabbitmq"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/services"
@@ -118,6 +118,10 @@ func (s *Scheduler) processNotifications(ctx context.Context) {
 	}
 }
 
+// Метод cleanupOldNotifications временно не используется. Раньше после отправки уведомления
+// оно сразу удалялось. Сейчас чтобы можно было отследить статус уведомления, уведомления не удаляются.
+//
+//nolint:unused
 func (s *Scheduler) cleanupOldNotifications(ctx context.Context) {
 	err := s.notificationService.DeleteSentNotifications(ctx)
 	if err != nil {

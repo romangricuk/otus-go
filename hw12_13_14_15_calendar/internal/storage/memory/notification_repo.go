@@ -2,11 +2,11 @@ package memorystorage
 
 import (
 	"context"
-	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
 )
 

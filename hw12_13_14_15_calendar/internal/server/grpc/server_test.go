@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/api"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/services"
 	memorystorage "github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage/memory"
@@ -182,7 +183,7 @@ func TestGRPCServer(t *testing.T) { //nolint:funlen
 				UserId:  uuid.New().String(),
 				Time:    timestamppb.Now(),
 				Message: "Test Notification",
-				Sent:    false,
+				Sent:    dto.NotificationOnWait,
 			}
 
 			resp, err := notificationClient.CreateNotification(context.Background(), req)
@@ -197,7 +198,7 @@ func TestGRPCServer(t *testing.T) { //nolint:funlen
 				UserId:  uuid.New().String(),
 				Time:    timestamppb.Now(),
 				Message: "Test Notification",
-				Sent:    false,
+				Sent:    dto.NotificationOnWait,
 			}
 
 			createResp, err := notificationClient.CreateNotification(context.Background(), createReq)
@@ -219,7 +220,7 @@ func TestGRPCServer(t *testing.T) { //nolint:funlen
 				UserId:  uuid.New().String(),
 				Time:    timestamppb.Now(),
 				Message: "Test Notification",
-				Sent:    false,
+				Sent:    dto.NotificationOnWait,
 			}
 
 			createResp, err := notificationClient.CreateNotification(context.Background(), createReq)
@@ -233,7 +234,7 @@ func TestGRPCServer(t *testing.T) { //nolint:funlen
 				UserId:  createReq.UserId,
 				Time:    timestamppb.Now(),
 				Message: "Updated Notification",
-				Sent:    true,
+				Sent:    dto.NotificationOnWait,
 			}
 
 			updateResp, err := notificationClient.UpdateNotification(context.Background(), updateReq)
@@ -247,7 +248,7 @@ func TestGRPCServer(t *testing.T) { //nolint:funlen
 				UserId:  uuid.New().String(),
 				Time:    timestamppb.Now(),
 				Message: "Test Notification",
-				Sent:    false,
+				Sent:    dto.NotificationOnWait,
 			}
 
 			createResp, err := notificationClient.CreateNotification(context.Background(), createReq)

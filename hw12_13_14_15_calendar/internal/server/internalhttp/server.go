@@ -480,8 +480,6 @@ func (s *Server) createNotificationHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	notificationRequest.Sent = false
-
 	id, err := s.notificationService.CreateNotification(r.Context(), notificationRequest)
 	if err != nil {
 		response := NewResponse(nil, []string{err.Error()}, http.StatusInternalServerError)
@@ -523,7 +521,6 @@ func (s *Server) updateNotificationHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	notificationRequest.ID = id
-	notificationRequest.Sent = false
 
 	err = s.notificationService.UpdateNotification(r.Context(), id, notificationRequest)
 	if err != nil {

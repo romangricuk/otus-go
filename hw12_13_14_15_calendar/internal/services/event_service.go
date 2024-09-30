@@ -7,6 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type EventService interface {
@@ -28,6 +30,14 @@ func NewEventService(store storage.Storage) EventService {
 func (s *EventServiceImpl) CreateEvent(ctx context.Context, event dto.EventData) (uuid.UUID, error) {
 	storageEvent := dto.ToStorageEvent(event)
 	storageEvent.ID = uuid.New()
+
+	newStart := storageEvent.StartTime
+	newEnd := storageEvent.EndTime
+
+	if newStart.After(newEnd) || newStart.Equal(newEnd) {
+		return uuid.Nil, status.Error(codes.InvalidArgument, "the beginning of events must be before the end")
+	}
+
 	return s.repo.CreateEvent(ctx, storageEvent)
 }
 

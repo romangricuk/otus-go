@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/config"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/logger"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/rabbitmq"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/services"
@@ -74,7 +75,6 @@ func (s *Scheduler) Start(ctx context.Context) error {
 			return nil
 		case <-ticker.C:
 			s.processNotifications(ctx)
-			s.cleanupOldNotifications(ctx)
 		}
 	}
 }
@@ -106,12 +106,22 @@ func (s *Scheduler) processNotifications(ctx context.Context) {
 		err = s.rabbitClient.SendNotification(notification)
 		if err == nil {
 			s.logger.Infof("Notification %s published", notification.ID)
+
+			notification.Sent = dto.NotificationOnQueue
+			err = s.notificationService.UpdateNotification(ctx, notification.ID, notification)
+			if err != nil {
+				s.logger.Errorf("on setting notification.Sent flag %s: %v", notification.ID, err)
+			}
 		} else {
 			s.logger.Errorf("Error publishing notification: %v", err)
 		}
 	}
 }
 
+// Метод cleanupOldNotifications временно не используется. Раньше после отправки уведомления
+// оно сразу удалялось. Сейчас чтобы можно было отследить статус уведомления, уведомления не удаляются.
+//
+//nolint:unused
 func (s *Scheduler) cleanupOldNotifications(ctx context.Context) {
 	err := s.notificationService.DeleteSentNotifications(ctx)
 	if err != nil {

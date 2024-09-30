@@ -1,0 +1,21 @@
+# Этап сборки
+FROM golang:1.22 AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+# Собираем только бинарник calendar-scheduler
+RUN CGO_ENABLED=0 go build -o /calendar-scheduler ./cmd/calendar_scheduler
+
+# Финальный образ
+FROM alpine:3.9
+
+RUN apk --no-cache add curl
+
+COPY --from=builder /calendar-scheduler /usr/local/bin/
+
+CMD ["/usr/local/bin/calendar-scheduler"]

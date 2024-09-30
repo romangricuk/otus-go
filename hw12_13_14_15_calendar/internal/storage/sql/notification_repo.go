@@ -104,7 +104,12 @@ func (r *NotificationRepo) ListNotifications(
 	start time.Time,
 	end time.Time,
 ) ([]storage.Notification, error) {
-	query := `SELECT id, event_id, user_id, time, message, sent FROM notifications WHERE time >= $1 AND time <= $2`
+	query := `
+	SELECT id, event_id, user_id, time, message, sent 
+	FROM notifications 
+	WHERE time >= $1 AND time <= $2 AND sent = 'wait'
+	`
+
 	r.logger.Debugf("ListNotifications SQL: %s", query)
 
 	rows, err := r.db.QueryContext(ctx, query, start, end)

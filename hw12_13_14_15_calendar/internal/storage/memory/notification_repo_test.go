@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/dto"
 	"github.com/romangricuk/otus-go/hw12_13_14_15_calendar/internal/storage"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +19,7 @@ func TestNotificationRepo_CreateNotification(t *testing.T) {
 		EventID: uuid.New(),
 		Time:    time.Now().Add(1 * time.Hour),
 		Message: "Test Notification",
-		Sent:    false,
+		Sent:    dto.NotificationOnWait,
 	}
 
 	id, err := repo.CreateNotification(context.Background(), notification)
@@ -34,7 +35,7 @@ func TestNotificationRepo_UpdateNotification(t *testing.T) {
 		EventID: uuid.New(),
 		Time:    time.Now().Add(1 * time.Hour),
 		Message: "Test Notification",
-		Sent:    false,
+		Sent:    dto.NotificationOnWait,
 	}
 
 	id, _ := repo.CreateNotification(context.Background(), notification)
@@ -57,7 +58,7 @@ func TestNotificationRepo_DeleteNotification(t *testing.T) {
 		EventID: uuid.New(),
 		Time:    time.Now().Add(1 * time.Hour),
 		Message: "Test Notification",
-		Sent:    false,
+		Sent:    dto.NotificationOnWait,
 	}
 
 	id, _ := repo.CreateNotification(context.Background(), notification)
@@ -77,14 +78,14 @@ func TestNotificationRepo_ListNotifications(t *testing.T) {
 		EventID: uuid.New(),
 		Time:    time.Now().Add(1 * time.Hour),
 		Message: "Notification 1",
-		Sent:    false,
+		Sent:    dto.NotificationOnWait,
 	}
 
 	notification2 := storage.Notification{
 		EventID: uuid.New(),
 		Time:    time.Now().Add(2 * time.Hour),
 		Message: "Notification 2",
-		Sent:    false,
+		Sent:    dto.NotificationOnWait,
 	}
 
 	_, _ = repo.CreateNotification(context.Background(), notification1)

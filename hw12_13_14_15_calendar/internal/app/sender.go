@@ -14,10 +14,11 @@ import (
 )
 
 type SenderApp struct {
-	config       config.SenderConfig
-	logger       logger.Logger
-	rabbitClient rabbitmq.Client
-	service      *services.SenderService
+	config              config.SenderConfig
+	logger              logger.Logger
+	rabbitClient        rabbitmq.Client
+	senderService       *services.SenderService
+	notificationService services.NotificationService
 }
 
 func NewSenderApp(cfg *config.Config) (*SenderApp, error) {
@@ -34,11 +35,21 @@ func NewSenderApp(cfg *config.Config) (*SenderApp, error) {
 	emailClient := email.NewSMTPClient(&cfg.Email)
 	service := services.NewSenderService(emailClient, logInstance)
 
+	// Инициализация хранилища
+	store, err := initStorage(cfg.Database, logInstance)
+	if err != nil {
+		return nil, fmt.Errorf("on initializing storage, %w", err)
+	}
+
+	// Инициализация сервиса уведомлений
+	notificationService := services.NewNotificationService(store)
+
 	return &SenderApp{
-		config:       cfg.Sender,
-		logger:       logInstance,
-		rabbitClient: rabbitClient,
-		service:      service,
+		config:              cfg.Sender,
+		logger:              logInstance,
+		rabbitClient:        rabbitClient,
+		senderService:       service,
+		notificationService: notificationService,
 	}, nil
 }
 
@@ -74,17 +85,23 @@ func (a *SenderApp) runMessageProcessor(ctx context.Context) error {
 			if !ok {
 				return nil // Channel closed, exit
 			}
-			a.handleNotification(notification)
+			a.handleNotification(ctx, notification)
 		case <-ctx.Done():
 			return nil // Context canceled, exit
 		}
 	}
 }
 
-func (a *SenderApp) handleNotification(notification dto.NotificationData) {
+func (a *SenderApp) handleNotification(ctx context.Context, notification dto.NotificationData) {
 	// Обработка уведомления
-	if err := a.service.ProcessNotification(notification); err != nil {
-		a.logger.Error("Failed to process notification: %v", err)
+	if err := a.senderService.ProcessNotification(notification); err != nil {
+		a.logger.Errorf("Failed to process notification: %v", err)
+	}
+
+	notification.Sent = dto.NotificationSent
+	err := a.notificationService.UpdateNotification(ctx, notification.ID, notification)
+	if err != nil {
+		a.logger.Errorf("error updating notification: %w", err)
 	}
 }
 

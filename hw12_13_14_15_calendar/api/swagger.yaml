@@ -33,8 +33,8 @@ definitions:
         example: Notification message
         type: string
       sent:
-        example: false
-        type: boolean
+        example: wait, on-queue, sent
+        type: string
       time:
         example: "2024-07-02T00:00:00Z"
         type: string
@@ -111,7 +111,7 @@ definitions:
     type: object
   internalhttp.Response:
     properties:
-      data: {}
+      data: { }
       errors:
         items:
           type: string
@@ -123,7 +123,7 @@ definitions:
     type: object
 host: localhost:8080
 info:
-  contact: {}
+  contact: { }
   description: Это простой API для управления событиями календаря.
   title: API Календаря
   version: "1.0"
@@ -131,23 +131,23 @@ paths:
   /events:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Получает список событий между указанными датами
       parameters:
-      - description: Время начала
-        example: "2024-07-01T00:00:00Z"
-        in: query
-        name: startTime
-        required: true
-        type: string
-      - description: Время окончания
-        example: "2024-07-31T23:59:59Z"
-        in: query
-        name: endTime
-        required: true
-        type: string
+        - description: Время начала
+          example: "2024-07-01T00:00:00Z"
+          in: query
+          name: startTime
+          required: true
+          type: string
+        - description: Время окончания
+          example: "2024-07-31T23:59:59Z"
+          in: query
+          name: endTime
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -163,20 +163,20 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список событий
       tags:
-      - events
+        - events
     post:
       consumes:
-      - application/json
+        - application/json
       description: Создает новое событие
       parameters:
-      - description: Запрос на создание события
-        in: body
-        name: event
-        required: true
-        schema:
-          $ref: '#/definitions/dto.EventData'
+        - description: Запрос на создание события
+          in: body
+          name: event
+          required: true
+          schema:
+            $ref: '#/definitions/dto.EventData'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -192,21 +192,21 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Создать событие
       tags:
-      - events
+        - events
   /events/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Удаляет существующее событие
       parameters:
-      - description: ID события
-        example: 123e4567-e89b-12d3-a456-426614174000
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: ID события
+          example: 123e4567-e89b-12d3-a456-426614174000
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -222,20 +222,20 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Удалить событие
       tags:
-      - events
+        - events
     get:
       consumes:
-      - application/json
+        - application/json
       description: Получает событие по ID
       parameters:
-      - description: ID события
-        example: 123e4567-e89b-12d3-a456-426614174000
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: ID события
+          example: 123e4567-e89b-12d3-a456-426614174000
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -251,25 +251,25 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Получить событие
       tags:
-      - events
+        - events
     put:
       consumes:
-      - application/json
+        - application/json
       description: Обновляет существующее событие
       parameters:
-      - description: ID события
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Запрос на обновление события
-        in: body
-        name: event
-        required: true
-        schema:
-          $ref: '#/definitions/dto.EventData'
+        - description: ID события
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Запрос на обновление события
+          in: body
+          name: event
+          required: true
+          schema:
+            $ref: '#/definitions/dto.EventData'
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -285,22 +285,22 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Обновить событие
       tags:
-      - events
+        - events
   /events/day:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Получает список событий на указанный день
       parameters:
-      - description: Дата
-        example: "2024-07-24"
-        format: date
-        in: query
-        name: date
-        required: true
-        type: string
+        - description: Дата
+          example: "2024-07-24"
+          format: date
+          in: query
+          name: date
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -316,22 +316,22 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список событий на указанный день
       tags:
-      - events
+        - events
   /events/month:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Получает список событий на указанный месяц
       parameters:
-      - description: Дата начала месяца
-        example: "2024-07-01"
-        format: date
-        in: query
-        name: date
-        required: true
-        type: string
+        - description: Дата начала месяца
+          example: "2024-07-01"
+          format: date
+          in: query
+          name: date
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -347,22 +347,22 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список событий на указанный месяц
       tags:
-      - events
+        - events
   /events/week:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Получает список событий на указанную неделю
       parameters:
-      - description: Дата начала недели
-        example: "2024-07-22"
-        format: date
-        in: query
-        name: date
-        required: true
-        type: string
+        - description: Дата начала недели
+          example: "2024-07-22"
+          format: date
+          in: query
+          name: date
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -378,14 +378,14 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список событий на указанную неделю
       tags:
-      - events
+        - events
   /health:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Проверяет состояние сервиса
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -397,27 +397,27 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Проверка состояния здоровья
       tags:
-      - health
+        - health
   /notifications:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Получает список уведомлений между указанными датами
       parameters:
-      - description: Время начала
-        example: "2024-07-01T00:00:00Z"
-        in: query
-        name: start_time
-        required: true
-        type: string
-      - description: Время окончания
-        example: "2024-07-31T23:59:59Z"
-        in: query
-        name: end_time
-        required: true
-        type: string
+        - description: Время начала
+          example: "2024-07-01T00:00:00Z"
+          in: query
+          name: start_time
+          required: true
+          type: string
+        - description: Время окончания
+          example: "2024-07-31T23:59:59Z"
+          in: query
+          name: end_time
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -433,20 +433,20 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Список уведомлений
       tags:
-      - notifications
+        - notifications
     post:
       consumes:
-      - application/json
+        - application/json
       description: Создает новое уведомление
       parameters:
-      - description: Запрос на создание уведомления
-        in: body
-        name: notification
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NotificationData'
+        - description: Запрос на создание уведомления
+          in: body
+          name: notification
+          required: true
+          schema:
+            $ref: '#/definitions/dto.NotificationData'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -462,21 +462,21 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Создать уведомление
       tags:
-      - notifications
+        - notifications
   /notifications/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Удаляет существующее уведомление
       parameters:
-      - description: ID уведомления
-        example: 123e4567-e89b-12d3-a456-426614174000
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: ID уведомления
+          example: 123e4567-e89b-12d3-a456-426614174000
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -492,20 +492,20 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Удалить уведомление
       tags:
-      - notifications
+        - notifications
     get:
       consumes:
-      - application/json
+        - application/json
       description: Получает уведомление по ID
       parameters:
-      - description: ID уведомления
-        example: 123e4567-e89b-12d3-a456-426614174000
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: ID уведомления
+          example: 123e4567-e89b-12d3-a456-426614174000
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -521,25 +521,25 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Получить уведомление
       tags:
-      - notifications
+        - notifications
     put:
       consumes:
-      - application/json
+        - application/json
       description: Обновляет существующее уведомление
       parameters:
-      - description: ID уведомления
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Запрос на обновление уведомления
-        in: body
-        name: notification
-        required: true
-        schema:
-          $ref: '#/definitions/dto.NotificationData'
+        - description: ID уведомления
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Запрос на обновление уведомления
+          in: body
+          name: notification
+          required: true
+          schema:
+            $ref: '#/definitions/dto.NotificationData'
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: No Content
@@ -555,5 +555,5 @@ paths:
             $ref: '#/definitions/internalhttp.ErrorResponseWrapper'
       summary: Обновить уведомление
       tags:
-      - notifications
+        - notifications
 swagger: "2.0"

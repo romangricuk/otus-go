@@ -18,7 +18,7 @@ func main() {
 	// Инициализация приложения
 	fmt.Println("run sender application")
 
-	configPath := flag.String("config", "configs/config.toml", "path to the config file")
+	configPath := flag.String("config", "configs/config.yaml", "path to the config file")
 	flag.Parse()
 
 	cfg, err := config.LoadConfig(*configPath)

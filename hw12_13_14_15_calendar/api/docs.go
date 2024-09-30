@@ -701,8 +701,8 @@ const docTemplate = `{
                     "example": "Notification message"
                 },
                 "sent": {
-                    "type": "boolean",
-                    "example": false
+                    "type": "string",
+                    "example": "wait, on-queue, sent"
                 },
                 "time": {
                     "type": "string",

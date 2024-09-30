@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -85,45 +87,34 @@ func LoadConfig(configPath string) (*Config, error) {
 	viper.SetDefault("sender.interval", 10)
 	viper.SetDefault("scheduler.interval", 10)
 	viper.SetDefault("email.useTLS", false)
+	viper.SetDefault("email.insecureSkipVerify", true)
 
-	// Загрузка переменных окружения
-	if err := bindEnvVariables(); err != nil {
-		return nil, err
+	// Настройка замены переменных окружения
+	viper.SetEnvPrefix("")
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	// Устанавливаем тип конфигурационного файла на YAML
+	viper.SetConfigType("yaml")
+
+	// Чтение конфигурации из файла
+	configContent, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
-	// Чтение конфигурации
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+	// Замена переменных окружения в файле конфигурации
+	configContentStr := os.ExpandEnv(string(configContent))
+
+	// Устанавливаем обработанный контент в Viper
+	if err := viper.ReadConfig(strings.NewReader(configContentStr)); err != nil {
+		return nil, fmt.Errorf("failed to read config: %w", err)
 	}
 
 	var config Config
 	if err := viper.Unmarshal(&config); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
 	return &config, nil
-}
-
-func bindEnvVariables() error {
-	envBindings := map[string]string{
-		"DB_USER":             "database.user",
-		"DB_PASSWORD":         "database.password",
-		"DB_NAME":             "database.name",
-		"DB_HOST":             "database.host",
-		"DB_PORT":             "database.port",
-		"RABBITMQ_URL":        "rabbitmq.url",
-		"RABBITMQ_QUEUE_NAME": "rabbitmq.queueName",
-		"SENDER_INTERVAL":     "sender.interval",
-		"SCHEDULER_INTERVAL":  "scheduler.interval",
-		"EMAIL_SMTP_SERVER":   "email.smtpServer",
-		"EMAIL_SMTP_PORT":     "email.smtpPort",
-	}
-
-	for envVar, configKey := range envBindings {
-		if err := viper.BindEnv(configKey, envVar); err != nil {
-			return fmt.Errorf("on bind env var: %w", err)
-		}
-	}
-
-	return nil
 }

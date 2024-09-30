@@ -19,7 +19,7 @@ message CreateNotificationRequest {
   string user_id = 2;
   google.protobuf.Timestamp time = 3;
   string message = 4;
-  bool sent = 5;
+  string sent = 5;
 }
 
 message CreateNotificationResponse {
@@ -32,7 +32,7 @@ message UpdateNotificationRequest {
   string user_id = 3;
   google.protobuf.Timestamp time = 4;
   string message = 5;
-  bool sent = 6;
+  string sent = 6;
 }
 
 message UpdateNotificationResponse {}
@@ -66,5 +66,5 @@ message Notification {
   string user_id = 3;
   google.protobuf.Timestamp time = 4;
   string message = 5;
-  bool sent = 6;
+  string sent = 6;
 }

@@ -12,7 +12,7 @@ type Notification struct {
 	EventID uuid.UUID `json:"eventId"`
 	Time    time.Time `json:"time"`
 	Message string    `json:"message"`
-	Sent    bool      `json:"sent"`
+	Sent    string    `json:"sent"`
 	UserID  uuid.UUID `json:"userId"`
 }
 
